@@ -1,5 +1,5 @@
 "use client";
-
+import dotenv from "dotenv";
 import { Provider } from "@/components/ui/provider";
 import {
   Box,
@@ -28,8 +28,9 @@ import { useState } from "react";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
-  const [movies, setMovies] = useState<any[]>([]);
+  let [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  dotenv.config();
   async function run(prompt: string) {
     setMovies([]);
     setLoading(true);
@@ -37,12 +38,19 @@ export default function Home() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `${process.env.API_KEY}`,
       },
     })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setMovies(data.movies);
+        if (data.error) {
+          alert(data.error + "Token: " + process.env.API_KEY);
+        } else {
+          setMovies(data.movies);
+          console.log("Movies: ", movies);
+          console.log(movies);
+        }
       });
     await promise;
     setLoading(false);
@@ -131,10 +139,13 @@ export default function Home() {
                   <Skeleton height="200px" marginBottom={4} />
                   <Skeleton height="200px" marginBottom={4} />
                 </Box>
+              ) : movies.length === 0 ? (
+                <Text fontSize="lg" color="gray.500">
+                  No movies found.
+                </Text>
               ) : (
                 movies.map((movie) => (
                   <MovieCard
-                    key={movie.id}
                     title={movie.title}
                     releaseYear={movie.release_date}
                     rating={movie.vote_average}
