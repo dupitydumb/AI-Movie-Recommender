@@ -31,6 +31,7 @@ export default function Home() {
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   async function run(prompt: string) {
+    setMovies([]);
     setLoading(true);
     const promise = fetch("/api/search?q=" + prompt, {
       method: "GET",

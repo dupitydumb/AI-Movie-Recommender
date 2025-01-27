@@ -1,22 +1,44 @@
 import { NextResponse, NextRequest } from "next/server";
 import dotenv from "dotenv";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
+dotenv.config();
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(50, "60 m"),
+  analytics: true,
+  prefix: "@upstash/ratelimit",
+});
 export async function GET(req: NextRequest) {
-  // const result = {
+  const { searchParams } = new URL(req.url);
+  const authHeader =
+    req.headers.get("Authorization") || searchParams.get("apiKey");
 
-  // };
-  // return NextResponse.json(result, {
-  //   status: 200,
-  // });
-  dotenv.config();
-  const query = req.nextUrl.searchParams.get("q") || "";
-  const result = await run(query);
-  console.log("Result: ", result);
-  return NextResponse.json(result, {
-    status: 200,
-  });
+  if (!authHeader) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const allowedToken = await Redis.fromEnv().get("allowed_token");
+  if (authHeader !== allowedToken) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const name = searchParams.get("q");
+  if (!name) {
+    return NextResponse.json({ error: "No name provided" }, { status: 400 });
+  }
+  const input = sanitizeInput(name);
+  const { success } = await ratelimit.limit("search");
+  if (!success) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
+  const result = await run(input);
+  return NextResponse.json(result);
 }
-
+function sanitizeInput(input: string): string {
+  return input.replace(/[^a-zA-Z0-9 ]/g, "");
+}
 const {
   GoogleGenerativeAI,
   HarmCategory,
@@ -42,6 +64,7 @@ const generationConfig = {
 
 async function run(input: string) {
   try {
+    movies = [];
     const chatSession = model.startChat({
       generationConfig,
       history: [
