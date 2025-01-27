@@ -6,7 +6,7 @@ import { Redis } from "@upstash/redis";
 dotenv.config();
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(1, "60 m"),
+  limiter: Ratelimit.slidingWindow(100, "60 m"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
