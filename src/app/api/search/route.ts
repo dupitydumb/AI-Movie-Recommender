@@ -13,13 +13,19 @@ const ratelimit = new Ratelimit({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const authHeader =
-    req.headers.get("Authorization") || searchParams.get("apiKey");
+    req.headers.get("Authorization") ||
+    searchParams.get("apiKey") ||
+    req.headers.get("X-RapidAPI-Key");
 
   if (!authHeader) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const allowedToken = await Redis.fromEnv().get("allowed_token");
+  const allowedToken = (await Redis.fromEnv().hget(authHeader, "token")) || "";
+  // if (authHeader !== allowedToken) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
+
   if (authHeader !== allowedToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
