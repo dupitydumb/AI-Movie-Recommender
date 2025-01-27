@@ -29,7 +29,6 @@ export async function GET(req: NextRequest) {
     const result = await getID(input);
     return NextResponse.json(result);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -43,8 +42,12 @@ function sanitizeInput(input: string): string {
 
 async function getID(name: string) {
   try {
-    const response = await fetch(`https://embed.su/list/movie.json`);
+    const response = await fetch(`${process.env.BASE_URL}/movie.json`, {
+      cache: "no-store",
+    });
+    // Log first 10 movies
     const data = await response.json();
+    console.log(data.slice(0, 10));
     const movies = data.filter((movie: any) =>
       movie.title.toLowerCase().includes(name.toLowerCase())
     );
@@ -58,7 +61,6 @@ async function getID(name: string) {
       return [{ error: "Movie not found" }];
     }
   } catch (error) {
-    console.log(error);
     return [{ error: "Internal Server Error" }];
   }
 }
