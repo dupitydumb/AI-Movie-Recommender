@@ -42,18 +42,23 @@ function sanitizeInput(input: string): string {
 }
 
 async function getID(name: string) {
-  const response = await fetch("https://embed.su/list/movie.json");
-  const data = await response.json();
-  const movies = data.filter((movie: any) =>
-    movie.title.toLowerCase().includes(name.toLowerCase())
-  );
-  if (movies.length > 0) {
-    return movies.map((movie: any) => ({
-      imdb: movie.imdb,
-      tmdb: movie.tmdb,
-      title: movie.title,
-    }));
-  } else {
-    return [{ error: "Movie not found" }];
+  try {
+    const response = await fetch(`https://embed.su/list/movie.json`);
+    const data = await response.json();
+    const movies = data.filter((movie: any) =>
+      movie.title.toLowerCase().includes(name.toLowerCase())
+    );
+    if (movies.length > 0) {
+      return movies.map((movie: any) => ({
+        imdb: movie.imdb,
+        tmdb: movie.tmdb,
+        title: movie.title,
+      }));
+    } else {
+      return [{ error: "Movie not found" }];
+    }
+  } catch (error) {
+    console.log(error);
+    return [{ error: "Internal Server Error" }];
   }
 }
