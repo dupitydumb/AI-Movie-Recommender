@@ -146,6 +146,7 @@ export default function Home() {
               ) : (
                 movies.map((movie) => (
                   <MovieCard
+                    key={movie.id}
                     title={movie.title}
                     releaseYear={movie.release_date}
                     rating={movie.vote_average}
