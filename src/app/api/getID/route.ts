@@ -12,28 +12,18 @@ const ratelimit = new Ratelimit({
 });
 
 export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const name = searchParams.get("title");
-    if (!name) {
-      return NextResponse.json({ error: "No name provided" }, { status: 400 });
-    }
-    const input = sanitizeInput(name);
-    const { success } = await ratelimit.limit("movieID");
-    if (!success) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded" },
-        { status: 429 }
-      );
-    }
-    const result = await getID(input);
-    return NextResponse.json(result);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+  const { searchParams } = new URL(req.url);
+  const name = searchParams.get("title");
+  if (!name) {
+    return NextResponse.json({ error: "No name provided" }, { status: 400 });
   }
+  const input = sanitizeInput(name);
+  const { success } = await ratelimit.limit("search");
+  if (!success) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
+  const result = await getID(input);
+  return NextResponse.json(result);
 }
 
 function sanitizeInput(input: string): string {
