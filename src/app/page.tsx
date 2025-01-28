@@ -32,6 +32,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   dotenv.config();
   async function run(prompt: string) {
+    if (loading) return;
     setMovies([]);
     setLoading(true);
     const promise = fetch("/api/search?q=" + prompt, {
@@ -47,9 +48,11 @@ export default function Home() {
         if (data.error) {
           alert(data.error + "Token: " + process.env.API_KEY);
         } else {
-          setMovies(data.movies);
-          console.log("Movies: ", movies);
-          console.log(movies);
+          if (data.movies.length === 0) {
+            alert("No movies found");
+          } else {
+            setMovies(data.movies);
+          }
         }
       });
     await promise;
@@ -140,20 +143,24 @@ export default function Home() {
                   <Skeleton height="200px" marginBottom={4} />
                 </Box>
               ) : movies.length === 0 ? (
-                <Text fontSize="lg" color="gray.500">
-                  No movies found.
-                </Text>
+                <Text fontSize="lg" color="gray.500"></Text>
               ) : (
-                movies.map((movie) => (
-                  <MovieCard
-                    key={movie.id}
-                    title={movie.title}
-                    releaseYear={movie.release_date}
-                    rating={movie.vote_average}
-                    posterPath={movie.poster_path}
-                    aireview={movie.overview}
-                  />
-                ))
+                movies.map((movie) =>
+                  movie ? (
+                    <MovieCard
+                      key={movie.id}
+                      title={movie.title}
+                      releaseYear={movie.release_date}
+                      rating={movie.vote_average}
+                      posterPath={movie.poster_path}
+                      aireview={movie.overview}
+                    />
+                  ) : (
+                    <Text fontSize="lg" color="gray.500">
+                      <Separator />
+                    </Text>
+                  )
+                )
               )}
             </div>
           </VStack>

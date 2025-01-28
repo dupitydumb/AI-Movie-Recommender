@@ -13,7 +13,7 @@ export const Headers = () => {
           <Link href="/about" px={4} className="menu-item">
             About
           </Link>
-          <Link href="/products" px={4} className="menu-item">
+          <Link href="/docs" px={4} className="menu-item">
             API
           </Link>
         </Flex>

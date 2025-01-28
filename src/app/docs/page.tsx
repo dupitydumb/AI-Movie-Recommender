@@ -9,10 +9,12 @@ import {
   List,
 } from "@chakra-ui/react";
 import { Provider } from "@/components/ui/provider";
+import { Headers } from "@/components/ui/header";
 import "./docs.css";
 export default function Docs() {
   return (
     <Provider>
+      <Headers />
       <div className="docs">
         <Flex>
           <Box
@@ -72,100 +74,64 @@ export default function Docs() {
               and a short summary.
             </Text>
             <Heading id="api-docs" mb={4}>
-              API Documentation
+              Search Endpoint
             </Heading>
             <Text fontSize="lg">
-              The API endpoint is located at <Code>/api/search</Code>. It
-              expects a query string parameter <Code>q</Code> with the user's
-              search query. The response will be a JSON object with the
-              following structure:
+              The API endpoint is located at <Code>/api/search?q=promt</Code>.
+              It expects a query string parameter q with the user's search
+              query. The response will be a JSON object with the following
+              structure:
             </Text>
-            <Code px={4} py={2} mb={4} variant={"subtle"}>
-              {`{
-  "recommendations": [
-    {
-      "title": "Movie Title",
-      "reason": "Specific connection to user's stated preferences in 1 sentence"
-    },
-    ...
-  ]
-}`}
-            </Code>
-            <Heading id="example-api-requests" size="md" mb={2}>
-              API Requests
-            </Heading>
-            <Text fontSize="lg" mb={4}>
-              Below are examples of the different types of API requests you can
-              make to the application.
-            </Text>
+            <pre className="json-code" style={{ margin: "1rem 0" }}>
+              <code>
+                {JSON.stringify(
+                  {
+                    movies: [
+                      {
+                        adult: false,
+                        backdrop_path: "/wj2nLa0vfS0SLu2vJ6ABTRhMrok.jpg",
+                        genre_ids: [18],
+                        id: 334541,
+                        original_language: "en",
+                        original_title: "Manchester by the Sea",
+                        overview:
+                          "After his older brother passes away, Lee Chandler is forced to return home to care for his 16-year-old nephew. There he is compelled to deal with a tragic past that separated him from his family and the community where he was born and raised.",
+                        popularity: 37.713,
+                        poster_path: "/o9VXYOuaJxCEKOxbA86xqtwmqYn.jpg",
+                        release_date: "2016-11-18",
+                        title: "Manchester by the Sea",
+                        video: false,
+                        vote_average: 7.5,
+                        vote_count: 5868,
+                      },
+                    ],
+                  },
+                  null,
+                  2
+                )}
+              </code>
+            </pre>
             <Heading as={"h3"} size="sm" mb={2} mt={4}>
               Get TMBD/IMBD
             </Heading>
             <Text fontSize="lg" mb={4}>
               To get movie details, send a GET request to{" "}
-              <Code>/api/movie/{"movieId"}</Code>. The response will be a JSON
-              object with the following structure:
-            </Text>
-            <Code px={4} py={2} mb={4} variant={"subtle"}>
-              {`{
-    "title": "Movie Title",
-    "genres": ["Genre 1", "Genre 2", ...],
-    "release_date": "YYYY-MM-DD",
-    "overview": "Movie Overview"
-}`}
-            </Code>
-            <Heading as={"h3"} size="sm" mb={2} mt={4}>
-              Search
-            </Heading>
-            <Text fontSize="lg" mb={4}>
-              To search for movies, send a GET request to{" "}
-              <Code>/api/search?q=</Code> with a search query. The response will
+              <Code>/api/getID/{"?title=La la land"}</Code>. The response will
               be a JSON object with the following structure:
             </Text>
-            <Code px={4} py={2} mb={4} variant={"subtle"}>
-              {`{
-    "movies": [
-        {
-            "title": "Movie Title",
-            "release_date": "YYYY-MM-DD",
-            "overview": "Movie Overview"
-        },
-        ...
-    ]
-}`}
-            </Code>
-            <Heading as={"h3"} size="sm" mb={2} mt={4}>
-              Recommendations
-            </Heading>
-            <Text fontSize="lg" mb={4}>
-              To get movie recommendations, send a GET request to{" "}
-              <Code>/api/recommendations</Code>. The response will be a JSON
-              object with the following structure:
-            </Text>
-            <Code px={4} py={2} mb={4} variant={"subtle"}>
-              {`{
-    "recommendations": [
-        {
-            "title": "Movie Title",
-            "reason": "Specific connection to user's stated preferences in 1 sentence"
-        },
-        ...
-    ]
-}`}
-            </Code>
-            <Heading as={"h3"} size="sm" mb={2} mt={4}>
-              Generate Prompt
-            </Heading>
-            <Text fontSize="lg" mb={4}>
-              To generate a prompt for the AI, send a GET request to{" "}
-              <Code>/api/generate-prompt</Code>. The response will be a JSON
-              object with the following structure:
-            </Text>
-            <Code px={4} py={2} mb={4} variant={"subtle"}>
-              {`{
-    "prompt": "Prompt text"
-}`}
-            </Code>
+            <pre className="json-code" style={{ margin: "1rem 0" }}>
+              <code>
+                {JSON.stringify(
+                  {
+                    name: "La la land (2016)",
+                    imdb: "tt3783958",
+                    tmdb: "299534",
+                  },
+                  null,
+                  2
+                )}
+              </code>
+            </pre>
           </Box>
         </Flex>
       </div>

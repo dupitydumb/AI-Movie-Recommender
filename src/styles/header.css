@@ -1,12 +1,13 @@
 .menu-item {
   padding-left: 4px;
   padding-right: 4px;
-  color: var(--subcolor);
+  color: var(--accent-dark);
   text-decoration: none;
 }
 
 .menu-item:hover {
-  color: var(--hover-color); /* Add a hover effect if desired */
+  color: var(--accent); /* Add a hover effect if desired */
+  transition: color 0.2s ease-in-out;
 }
 
 .header {
