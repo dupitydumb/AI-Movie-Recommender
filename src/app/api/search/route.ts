@@ -4,7 +4,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 dotenv.config();
-const ratelimit = new Ratelimit({
+let ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(100, "1 m"),
   analytics: true,
@@ -28,6 +28,15 @@ export async function GET(req: NextRequest) {
 
   if (authHeader !== allowedToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (authHeader == process.env.API_KEY_TEST) {
+    ratelimit = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(15, "60 m"), // Adjusted rate limit for test API key
+      analytics: true,
+      prefix: "@upstash/ratelimit",
+    });
   }
 
   const name = searchParams.get("q");
