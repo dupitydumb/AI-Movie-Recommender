@@ -6,7 +6,7 @@ import { Redis } from "@upstash/redis";
 dotenv.config();
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(50, "60 m"),
+  limiter: Ratelimit.slidingWindow(100, "1 m"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
@@ -64,7 +64,7 @@ const generationConfig = {
   temperature: 0,
   topP: 0.95,
   topK: 40,
-  maxOutputTokens: 500,
+  maxOutputTokens: 1000,
   responseMimeType: "text/plain",
 };
 
