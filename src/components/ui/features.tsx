@@ -65,7 +65,7 @@ export function Features() {
     <section id="features" className="py-16 border-t border-gray-800">
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Why Choose MovieMind?
+          Why Choose Screenpick
         </h2>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto">
           Our AI-powered platform makes finding your next favorite movie
