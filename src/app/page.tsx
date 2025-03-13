@@ -132,16 +132,21 @@ export default function Home() {
                       Recommended Movies
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {movies.map((movie) => (
-                        <MovieCard
-                          key={movie.id}
-                          title={movie.title}
-                          releaseYear={movie.release_date}
-                          rating={movie.vote_average}
-                          posterPath={movie.poster_path}
-                          aireview={movie.overview}
-                        />
-                      ))}
+                      {movies.map((movie) => {
+                        if (!movie) {
+                          return null;
+                        }
+                        return (
+                          <MovieCard
+                            key={movie.id}
+                            title={movie.title}
+                            releaseYear={movie.release_date}
+                            rating={movie.vote_average}
+                            posterPath={movie.poster_path}
+                            aireview={movie.overview}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 )}
