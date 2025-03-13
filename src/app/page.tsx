@@ -30,6 +30,7 @@ import { useState } from "react";
 import { Section, Send } from "lucide-react";
 import Head from "next/head";
 import Script from "next/script";
+import ReactGA from "react-ga4";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -38,6 +39,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   dotenv.config();
+  ReactGA.initialize("G-3YKPKP74MD");
+  ReactGA.send({ hitType: "pageview", page: "/", title: "Home" });
   async function run(prompt: string) {
     if (loading) return;
     setMovies([]);
@@ -101,7 +104,6 @@ export default function Home() {
 
   return (
     <Provider>
-      <Tracking />
       <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
         <Header />
         <div className="wrapper">
@@ -204,6 +206,12 @@ export default function Home() {
                     "Romantic comedies",
                     "Crime thrillers",
                     "Fantasy adventures",
+                    "Superhero movies",
+                    "Documentaries about space",
+                    "Melandcholic dramas",
+                    "Movies about music",
+                    "Movies based on true stories",
+                    "Movies with strong characters",
                   ].map((suggestion) => (
                     <button
                       key={suggestion}
