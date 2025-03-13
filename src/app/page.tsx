@@ -56,7 +56,7 @@ export default function Home() {
           alert(data.error + "Token: " + process.env.API_KEY);
         } else {
           if (data.movies.length === 0) {
-            alert("No movies found");
+            setError("Sorry, we couldn't get any movie recommendations.");
           } else {
             setMovies(data.movies);
           }

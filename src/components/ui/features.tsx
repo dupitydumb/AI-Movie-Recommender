@@ -79,7 +79,7 @@ export function Features() {
             key={index}
             className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-purple-500 transition-all duration-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)] group"
           >
-            <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+            <div className="mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               {feature.icon}
             </div>
             <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
