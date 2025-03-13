@@ -1,12 +1,12 @@
 import React from "react";
 import "./about.css";
-import { Headers } from "@/components/ui/header";
+import { Header } from "@/components/ui/header";
 import { Provider } from "@/components/ui/provider";
 
 const AboutPage: React.FC = () => {
   return (
     <Provider>
-      <Headers />
+      <Header />
       <div
         className="about-page"
         style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}

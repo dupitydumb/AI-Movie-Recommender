@@ -9,12 +9,12 @@ import {
   List,
 } from "@chakra-ui/react";
 import { Provider } from "@/components/ui/provider";
-import { Headers } from "@/components/ui/header";
+import { Header } from "@/components/ui/header";
 import "./docs.css";
 export default function Docs() {
   return (
     <Provider>
-      <Headers />
+      <Header />
       <div className="docs">
         <Flex>
           <Box

@@ -8,7 +8,7 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { Provider } from "@/components/ui/provider";
-import { Headers } from "@/components/ui/header";
+import { Header } from "@/components/ui/header";
 import "./price.css";
 const PricePage: React.FC = () => {
   const plans = [
@@ -27,7 +27,7 @@ const PricePage: React.FC = () => {
 
   return (
     <Provider>
-      <Headers />
+      <Header />
       <div className="price-page">
         <Box p={5}>
           <VStack gap={5} alignItems="center" mb={10}>
