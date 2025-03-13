@@ -1,80 +1,77 @@
+import { Star } from "lucide-react";
 import {
-  Box,
-  Input,
-  Button,
-  VStack,
-  Heading,
-  Text,
-  HStack,
-  Separator,
-} from "@chakra-ui/react";
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
-export interface MovieCardProps {
+type Movie = {
+  id: string;
+  title: string;
+  year: string;
+  genre: string[];
+  rating: number;
+  description: string;
+  imageUrl: string;
+};
+
+interface MovieCardProps {
+  key: string;
   title: string;
   releaseYear: string;
-  rating: string;
+  rating: number;
   posterPath: string;
   aireview: string;
 }
 
-export const MovieCard: React.FC<MovieCardProps> = ({
+export function MovieCard({
+  key,
   title,
   releaseYear,
   rating,
   posterPath,
   aireview,
-}) => {
+}: MovieCardProps) {
   return (
-    <Box className="movie-card" overflow="hidden">
-      <HStack>
-        <Box minWidth="100px">
-          <img
-            src={
-              "https://media.themoviedb.org/t/p/w220_and_h330_face/" +
-              posterPath
-            }
-            alt={title}
-            style={{ width: "100%" }}
-          />
-        </Box>
-        <VStack align="start" gap={1} p={4}>
-          <HStack>
-            <Heading size="md" fontWeight="bold">
-              {title}
-            </Heading>
-            <Text fontSize="sm" color="gray.500">
-              {releaseYear.slice(0, 4)}
-            </Text>
-          </HStack>
-          <HStack>
-            <svg
-              width="16px"
-              height="16px"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              version="1.1"
-            >
-              <g transform="translate(0 -1028.4)">
-                <path
-                  d="m12 1028.4 4 9 8 1-6 5 2 9-8-5-8 5 2-9-6-5 8-1z"
-                  fill="#236a4c"
-                />
-                <path
-                  d="m12 1028.4-4 9-6.9688 0.8 4.9688 4.2-0.1875 0.8 0.1875 0.2-1.75 7.8 7.75-4.8 7.75 4.8-1.75-7.8 0.188-0.2-0.188-0.8 4.969-4.2-6.969-0.8-4-9z"
-                  fill="#48d597"
-                />
-              </g>
-            </svg>
-            <Text fontSize="sm" color="gray.500">
-              {rating}
-            </Text>
-          </HStack>
-          <Text fontSize="sm" color="gray.500" className="overview">
-            {aireview}
-          </Text>
-        </VStack>
-      </HStack>
-      <Separator variant={"dashed"} colorPalette={"gray"} />
-    </Box>
+    <Card className="movie-card overflow-hidden bg-gray-800/50 border-gray-700 hover:border-purple-500 transition-all duration-300 h-full flex flex-col">
+      <div className="relative aspect-[2/3] w-full">
+        <Image
+          src={`https://image.tmdb.org/t/p/w500/${posterPath}` || ""}
+          alt={title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+        />
+      </div>
+
+      <CardHeader className="p-4 pb-2">
+        <div className="flex justify-between items-start gap-2">
+          <h3 className="font-bold text-lg line-clamp-1">{title}</h3>
+          <div className="flex items-center gap-1 text-yellow-400">
+            <Star className="h-4 w-4 fill-yellow-400" />
+            <span className="text-sm">{rating.toFixed(1)}</span>
+          </div>
+        </div>
+        <div className="text-sm text-gray-400">{releaseYear}</div>
+      </CardHeader>
+
+      <CardContent className="p-4 pt-0 flex-grow">
+        <p className="text-sm text-gray-300 line-clamp-3 mb-3">{aireview}</p>
+      </CardContent>
+
+      <CardFooter className="p-4 pt-0">
+        <Button
+          variant="default"
+          className="w-full bg-purple-600 hover:bg-purple-700"
+        >
+          More Info
+        </Button>
+      </CardFooter>
+    </Card>
   );
-};
+}
+
+import { Button } from "@/components/ui/button";

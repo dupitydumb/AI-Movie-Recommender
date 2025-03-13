@@ -2,7 +2,6 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  max-width: 90%;
   margin: 0 auto;
   padding: 16px;
 }
@@ -42,23 +41,11 @@
 }
 
 .movie-card {
-  border-radius: 10px;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  color: var(--accent);
-  font-size: smaller;
-  max-width: 100%;
-  background-color: #122322;
-  height: 150px;
+  height: 65vh;
 }
 
 .movie-card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transform: scale(1.05);
-  transition: transform 0.2s ease-in-out;
-  border: 2px solid var(--accent);
-  box-shadow: 0 0 10px var(--accent);
 }
 
 .overview {
@@ -102,7 +89,8 @@
 
 .movie-list {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   width: 100%;
 }
 
@@ -136,18 +124,15 @@
   padding: 8px 16px;
 }
 
-.search-button {
-  cursor: pointer;
-  background: var(--accent-dark);
-  color: white;
-  padding: 8px 16px;
-  position: absolute;
-  right: 580;
-}
-
-.search-button:hover {
-  background: var(--accent);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.search-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  width: 50rem;
+  margin: 0 auto;
+  padding: 16px;
 }
 
 .button:hover {
@@ -205,5 +190,102 @@
 
   .movie-list {
     width: 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 8px;
+  }
+
+  .search-bar {
+    width: 90%;
+  }
+
+  .search-bar input {
+    padding: 8px;
+  }
+
+  .promt-card {
+    padding: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .movie-card {
+    height: auto;
+  }
+
+  .movie-card img {
+    height: auto;
+    width: 100%;
+  }
+
+  .movie-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .hero {
+    font-size: 2rem;
+    padding: 16px;
+  }
+
+  .sub-hero {
+    font-size: 1rem;
+    padding: 16px;
+  }
+
+  .search-form {
+    width: 90%;
+    padding: 8px;
+  }
+
+  .button {
+    padding: 6px 12px;
+  }
+
+  .promt-recs {
+    font-size: small;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .wrapper {
+    max-width: 80%;
+    padding: 12px;
+  }
+
+  .search-bar {
+    width: 70%;
+  }
+
+  .hero {
+    font-size: 2.5rem;
+    padding: 20px;
+  }
+
+  .sub-hero {
+    font-size: 1.3rem;
+    padding: 20px;
+  }
+
+  .movie-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 80%;
+  }
+
+  .search-form {
+    width: 70%;
+    padding: 12px;
+  }
+
+  .button {
+    padding: 7px 14px;
+  }
+
+  .promt-recs {
+    font-size: medium;
   }
 }

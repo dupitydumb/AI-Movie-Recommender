@@ -22,14 +22,19 @@ import {
 } from "@/components/ui/skeleton";
 import "./page.css";
 import { MovieCard } from "@/components/ui/moviecard";
-import { Headers } from "@/components/ui/header";
+import { Header } from "@/components/ui/header";
+import { Footer } from "@/components/ui/footer";
+import { Features } from "@/components/ui/features";
 import * as React from "react";
 import { useState } from "react";
+import { Section, Send } from "lucide-react";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   let [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   dotenv.config();
   async function run(prompt: string) {
     if (loading) return;
@@ -59,113 +64,172 @@ export default function Home() {
     setLoading(false);
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!prompt.trim()) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1300));
+      run(prompt);
+    } catch (err) {
+      console.error("Error generating movie recommendations:", err);
+      setError("Sorry, we couldn't process your request. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Provider>
-      <Headers />
-      <div className="background"></div>
-      <div className="wrapper">
-        <Box p={8}>
-          <VStack gap={4}>
-            <Box textAlign="center">
-              <Heading className="hero">Supercharged Movie Nights</Heading>
-              <Text className="sub-hero">
-                Discover your next favorite film with AI-powered
-                recommendations, all in one place. Finding hidden gems and
-                exploring new genres has never been this exciting.
-              </Text>
-              <Button className="button">⚡Try Now!</Button>
-            </Box>
-            <Separator />
-            <HStack className="search-bar" alignItems="center">
-              <Box flex="1" position="relative">
-                <Input
-                  placeholder="Type your movie preference..."
-                  id="prompt"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  paddingRight="2.5rem"
-                />
-                <Button
-                  position="absolute"
-                  right="0rem"
-                  top="50%"
-                  transform="translateY(-50%)"
-                  onClick={() => run(prompt)}
-                  className="search-button"
-                >
-                  {loading ? (
-                    <ProgressCircleRoot value={null} size="sm">
-                      <ProgressCircleRing cap="round" />
-                    </ProgressCircleRoot>
-                  ) : (
-                    <svg
-                      fill="#000000"
-                      width="24px"
-                      height="24px"
-                      viewBox="0 0 0.96 0.96"
-                      id="send"
-                      data-name="Flat Color"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon flat-color"
-                    >
-                      <path
-                        id="primary"
-                        d="M0.866 0.48a0.08 0.08 0 0 1 -0.046 0.072L0.235 0.83A0.084 0.084 0 0 1 0.2 0.84a0.08 0.08 0 0 1 -0.073 -0.113L0.218 0.52l0.018 -0.04 -0.018 -0.04 -0.091 -0.205a0.08 0.08 0 0 1 0.108 -0.105l0.586 0.278A0.08 0.08 0 0 1 0.866 0.48"
-                        style={{ fill: "rgb(209, 209, 209)" }}
-                      />
-                      <path
-                        id="secondary"
-                        d="M0.48 0.48a0.04 0.04 0 0 1 -0.04 0.04H0.218l0.018 -0.04 -0.018 -0.04H0.44a0.04 0.04 0 0 1 0.04 0.04"
-                        style={{ fill: "rgb(44, 169, 188)" }}
-                      />
-                    </svg>
-                  )}
-                </Button>
+      <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
+        <Header />
+        <div className="wrapper">
+          <Box p={8}>
+            <VStack gap={4}>
+              <Box textAlign="center">
+                <section className="py-12 text-center">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                    Movie AI Recommender
+                  </h1>
+                  <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
+                    Discover your next favorite movie with our AI-powered
+                    recommendation engine. Just tell us what you're in the mood
+                    for!
+                  </p>
+                </section>
               </Box>
-            </HStack>
-            <HStack className="promt-recs">
-              <Button onClick={() => run("girl boss movies")}>
-                girl boss movies
-              </Button>
-              <Button onClick={() => run("sad movies 10s")}>
-                sad movies 10s
-              </Button>
-              <Button onClick={() => run("romantic movies")}>
-                romantic movies
-              </Button>
-            </HStack>
+              <Separator />
+              <div className="search-form max-w-4xl mx-auto">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex gap-2 mb-8 w-full items-center"
+                >
+                  <Input
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="I'm in the mood for a sci-fi movie with time travel..."
+                    className="bg-gray-800/50 border-gray-700 text-white w-full px-4 py-2 rounded-lg focus:outline-none focus:ring focus:ring-purple-500"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    {isLoading ? "Thinking..." : <Send className="h-4 w-4" />}
+                  </Button>
+                </form>
+                {error && (
+                  <div className="text-red-400 mb-4 text-center">{error}</div>
+                )}
 
-            <div className="movie-list">
-              {loading ? (
-                <Box className="skeleton" marginBottom={4}>
-                  <Skeleton height="200px" marginBottom={4} />
-                  <Skeleton height="200px" marginBottom={4} />
-                  <Skeleton height="200px" marginBottom={4} />
-                </Box>
-              ) : movies.length === 0 ? (
-                <Text fontSize="lg" color="gray.500"></Text>
-              ) : (
-                movies.map((movie) =>
-                  movie ? (
-                    <MovieCard
-                      key={movie.id}
-                      title={movie.title}
-                      releaseYear={movie.release_date}
-                      rating={movie.vote_average}
-                      posterPath={movie.poster_path}
-                      aireview={movie.overview}
-                    />
-                  ) : (
-                    <Text fontSize="lg" color="gray.500">
-                      <Separator />
-                    </Text>
+                {movies.length > 0 && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-4">
+                      Recommended Movies
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {movies.map((movie) => (
+                        <MovieCard
+                          key={movie.id}
+                          title={movie.title}
+                          releaseYear={movie.release_date}
+                          rating={movie.vote_average}
+                          posterPath={movie.poster_path}
+                          aireview={movie.overview}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!movies.length && !isLoading && !error && (
+                  <div className="text-center text-gray-400 py-12">
+                    <p>
+                      Ask for movie recommendations and they'll appear here!
+                    </p>
+                    <p className="text-sm mt-2">
+                      Try something like "Action movies from the 90s" or
+                      "Feel-good comedies"
+                    </p>
+                  </div>
+                )}
+
+                {isLoading && (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-pulse flex flex-col items-center">
+                      <div className="h-12 w-12 rounded-full bg-purple-600/50 mb-4"></div>
+                      <p className="text-purple-400">
+                        Finding the perfect movies for you...
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Prompt suggestions */}
+              <div className="mb-8">
+                <p className="text-sm text-gray-400 mb-2">Try these prompts:</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Action movies from the 90s",
+                    "Sci-fi with time travel",
+                    "Feel-good comedies",
+                    "Animated family movies",
+                    "Horror with ghosts",
+                    "Romantic comedies",
+                    "Crime thrillers",
+                    "Fantasy adventures",
+                  ].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => setPrompt(suggestion)}
+                      className="px-3 py-1.5 bg-gray-800/70 hover:bg-gray-700/70 text-sm rounded-full text-gray-300 transition-colors border border-gray-700 hover:border-purple-500"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* <div className="movie-list">
+                {loading ? (
+                  <Box className="skeleton" marginBottom={4}>
+                    <Skeleton height="200px" marginBottom={4} />
+                    <Skeleton height="200px" marginBottom={4} />
+                    <Skeleton height="200px" marginBottom={4} />
+                  </Box>
+                ) : movies.length === 0 ? (
+                  <Text fontSize="lg" color="gray.500"></Text>
+                ) : (
+                  movies.map((movie) =>
+                    movie ? (
+                      <MovieCard
+                        key={movie.id}
+                        title={movie.title}
+                        releaseYear={movie.release_date}
+                        rating={movie.vote_average}
+                        posterPath={movie.poster_path}
+                        aireview={movie.overview}
+                      />
+                    ) : (
+                      <Text fontSize="lg" color="gray.500">
+                        <Separator />
+                      </Text>
+                    )
                   )
-                )
-              )}
-            </div>
-          </VStack>
-        </Box>
+                )}
+              </div> */}
+            </VStack>
+          </Box>
+          <section className="py-12 text-center">
+            <Features />
+          </section>
+        </div>
       </div>
+      <Footer />
     </Provider>
   );
 }
