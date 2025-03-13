@@ -29,6 +29,7 @@ import * as React from "react";
 import { useState } from "react";
 import { Section, Send } from "lucide-react";
 import Head from "next/head";
+import Script from "next/script";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -84,29 +85,23 @@ export default function Home() {
     }
   };
 
+  function Tracking() {
+    return (
+      <script>
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-3YKPKP74MD');
+        `}
+      </script>
+    );
+  }
+
   return (
     <Provider>
-      <Head>
-        <title>Movie AI Recommender</title>
-        <meta
-          name="description"
-          content="Discover your next favorite movie with our AI-powered recommendation engine. Just tell us what you're in the mood for!"
-        />
-        <link rel="icon" href="/favicon.ico" />
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-3YKPKP74MD"
-        ></script>
-        <script>
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-3YKPKP74MD');
-          `}
-        </script>
-      </Head>
+      <Tracking />
       <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
         <Header />
         <div className="wrapper">
