@@ -27,7 +27,8 @@ import { Footer } from "@/components/ui/footer";
 import { Features } from "@/components/ui/features";
 import * as React from "react";
 import { useState } from "react";
-import { Section, Send } from "lucide-react";
+import { useEffect } from "react";
+import { Send } from "lucide-react";
 import Head from "next/head";
 import Script from "next/script";
 import ReactGA from "react-ga4";
@@ -40,11 +41,11 @@ export default function Home() {
   const [error, setError] = useState("");
   dotenv.config();
   ReactGA.initialize("G-3YKPKP74MD");
-  ReactGA.send({ hitType: "pageview", page: "/", title: "Home" });
+
   async function run(prompt: string) {
     if (loading) return;
     setMovies([]);
-    setLoading(true);
+    setIsLoading(true);
     const promise = fetch("/api/search?q=" + prompt, {
       method: "GET",
       headers: {
@@ -65,42 +66,29 @@ export default function Home() {
           }
         }
       });
+    setLoading(true);
     await promise;
-    setLoading(false);
+    setIsLoading(false);
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!prompt.trim()) return;
-
-    setIsLoading(true);
     setError("");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1300));
       run(prompt);
     } catch (err) {
       console.error("Error generating movie recommendations:", err);
       setError("Sorry, we couldn't process your request. Please try again.");
     } finally {
-      setIsLoading(false);
     }
   };
 
-  function Tracking() {
-    return (
-      <script>
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){window.dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'G-3YKPKP74MD');
-        `}
-      </script>
-    );
-  }
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
 
   return (
     <Provider>

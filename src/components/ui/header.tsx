@@ -25,20 +25,14 @@ export function Header() {
             Home
           </Link>
           <Link
-            href="#features"
+            href="/docs"
             className="text-sm hover:text-purple-400 transition-colors"
           >
-            Features
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="text-sm hover:text-purple-400 transition-colors"
-          >
-            How It Works
+            Documentation
           </Link>
           <Button
             variant="default"
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
           >
             Get Started
           </Button>
