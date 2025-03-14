@@ -145,6 +145,7 @@ export default function Home() {
                         }
                         return (
                           <MovieCard
+                            id={movie.id}
                             key={movie.id}
                             title={movie.title}
                             releaseYear={movie.release_date}

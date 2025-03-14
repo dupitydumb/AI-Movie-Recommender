@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
 
 type Movie = {
   id: string;
@@ -19,6 +20,7 @@ type Movie = {
 };
 
 interface MovieCardProps {
+  id: string;
   key: string;
   title: string;
   releaseYear: string;
@@ -28,6 +30,7 @@ interface MovieCardProps {
 }
 
 export function MovieCard({
+  id,
   key,
   title,
   releaseYear,
@@ -63,12 +66,20 @@ export function MovieCard({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button
-          variant="default"
-          className="w-full bg-purple-600 hover:bg-purple-700"
+        <Link
+          href={`https://www.myflixed.fun/watch.html?id=${id}`}
+          passHref
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full"
         >
-          More Info
-        </Button>
+          <Button
+            variant="default"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300"
+          >
+            Watch
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
