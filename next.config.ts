@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
     BASE_URL: process.env.BASE_URL,
   },
   images: {
-    domains: ["image.tmdb.org"],
+    domains: ["image.tmdb.org", "ui-avatars.com"],
+    dangerouslyAllowSVG: true,
   },
 };
 

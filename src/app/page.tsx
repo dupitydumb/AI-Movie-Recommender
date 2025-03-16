@@ -25,6 +25,9 @@ import { MovieCard } from "@/components/ui/moviecard";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { Features } from "@/components/ui/features";
+import { Faq } from "../components/ui/faq";
+import { Testimonials } from "@/components/ui/testimonials";
+import { SeoSchema } from "@/components/ui/seo-scheme";
 import * as React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -93,6 +96,7 @@ export default function Home() {
   return (
     <Provider>
       <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
+        <SeoSchema />
         <Header />
         <div className="wrapper">
           <Box p={8}>
@@ -245,6 +249,12 @@ export default function Home() {
           </Box>
           <section className="py-12 text-center">
             <Features />
+          </section>
+          <section className="py-12">
+            <Faq />
+          </section>
+          <section className="py-12">
+            <Testimonials />
           </section>
         </div>
       </div>
