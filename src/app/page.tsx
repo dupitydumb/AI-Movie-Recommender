@@ -39,6 +39,7 @@ import ReactGA from "react-ga4";
 import { motion } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
+import { AnimatedText } from "@/components/animation/animated-text";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -103,22 +104,24 @@ export default function Home() {
         <SeoSchema />
         <Header />
         <div className="wrapper">
-          <FadeIn delay={0.5}>
-            <Box p={8}>
-              <VStack gap={4}>
-                <Box textAlign="center">
-                  <section className="py-12 text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                      Movie AI Recommender
-                    </h1>
+          <Box p={8}>
+            <VStack gap={4}>
+              <Box textAlign="center">
+                <section className="py-12 text-center">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                    <AnimatedText text="Movie AI Recommender" />
+                  </h1>
+                  <FadeIn delay={0.5}>
                     <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
                       Discover your next favorite movie with our AI-powered
                       recommendation engine. Just tell us what you're in the
                       mood for!
                     </p>
-                  </section>
-                </Box>
-                <Separator />
+                  </FadeIn>
+                </section>
+              </Box>
+              <Separator />
+              <FadeIn direction="up" delay={0.2}>
                 <div className="search-form max-w-4xl mx-auto">
                   <form
                     onSubmit={handleSubmit}
@@ -147,24 +150,28 @@ export default function Home() {
                       <h2 className="text-2xl font-bold mb-4">
                         Recommended Movies
                       </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {movies.map((movie) => {
-                          if (!movie) {
-                            return null;
-                          }
-                          return (
-                            <MovieCard
-                              id={movie.id}
-                              key={movie.id}
-                              title={movie.title}
-                              releaseYear={movie.release_date}
-                              rating={movie.vote_average}
-                              posterPath={movie.poster_path}
-                              aireview={movie.overview}
-                            />
-                          );
-                        })}
-                      </div>
+                      <StaggerChildren delay={0.5}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {movies.map((movie) => {
+                            if (!movie) {
+                              return null;
+                            }
+                            return (
+                              <StaggerItem key={movie.id}>
+                                <MovieCard
+                                  id={movie.id}
+                                  key={movie.id}
+                                  title={movie.title}
+                                  releaseYear={movie.release_date}
+                                  rating={movie.vote_average}
+                                  posterPath={movie.poster_path}
+                                  aireview={movie.overview}
+                                />
+                              </StaggerItem>
+                            );
+                          })}
+                        </div>
+                      </StaggerChildren>
                     </div>
                   )}
 
@@ -191,43 +198,42 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                {/* Prompt suggestions */}
-                <div className="mb-8">
-                  <p className="text-sm text-gray-400 mb-2">
-                    Try these prompts:
-                  </p>
-                  <StaggerChildren staggerDelay={0.3}>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        "Action movies from the 90s",
-                        "Sci-fi with time travel",
-                        "Feel-good comedies",
-                        "Animated family movies",
-                        "Horror with ghosts",
-                        "Romantic comedies",
-                        "Crime thrillers",
-                        "Fantasy adventures",
-                        "Superhero movies",
-                        "Documentaries about space",
-                        "Melandcholic dramas",
-                        "Movies about music",
-                        "Movies based on true stories",
-                        "Movies with strong characters",
-                      ].map((suggestion) => (
-                        <StaggerItem key={suggestion}>
-                          <motion.button
-                            onClick={() => setPrompt(suggestion)}
-                            className="px-3 py-1.5 bg-gray-800/70 hover:bg-gray-700/70 text-sm rounded-full text-gray-300 transition-colors border border-gray-700 hover:border-purple-500"
-                          >
-                            {suggestion}
-                          </motion.button>
-                        </StaggerItem>
-                      ))}
-                    </div>
-                  </StaggerChildren>
-                </div>
+              </FadeIn>
+              {/* Prompt suggestions */}
+              <div className="mb-8">
+                <p className="text-sm text-gray-400 mb-2">Try these prompts:</p>
+                <StaggerChildren staggerDelay={0.3}>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "Action movies from the 90s",
+                      "Sci-fi with time travel",
+                      "Feel-good comedies",
+                      "Animated family movies",
+                      "Horror with ghosts",
+                      "Romantic comedies",
+                      "Crime thrillers",
+                      "Fantasy adventures",
+                      "Superhero movies",
+                      "Documentaries about space",
+                      "Melandcholic dramas",
+                      "Movies about music",
+                      "Movies based on true stories",
+                      "Movies with strong characters",
+                    ].map((suggestion) => (
+                      <StaggerItem key={suggestion}>
+                        <motion.button
+                          onClick={() => setPrompt(suggestion)}
+                          className="px-3 py-1.5 bg-gray-800/70 hover:bg-gray-700/70 text-sm rounded-full text-gray-300 transition-colors border border-gray-700 hover:border-purple-500"
+                        >
+                          {suggestion}
+                        </motion.button>
+                      </StaggerItem>
+                    ))}
+                  </div>
+                </StaggerChildren>
+              </div>
 
-                {/* <div className="movie-list">
+              {/* <div className="movie-list">
                 {loading ? (
                   <Box className="skeleton" marginBottom={4}>
                     <Skeleton height="200px" marginBottom={4} />
@@ -255,9 +261,8 @@ export default function Home() {
                   )
                 )}
               </div> */}
-              </VStack>
-            </Box>
-          </FadeIn>
+            </VStack>
+          </Box>
           <section className="py-12 text-center">
             <Features />
           </section>
