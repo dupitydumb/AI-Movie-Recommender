@@ -8,6 +8,10 @@ import {
   ThumbsUp,
   Zap,
 } from "lucide-react";
+import { StaggerChildren } from "../animation/stagger-children";
+import { StaggerItem } from "../animation/stagger-children";
+import { motion } from "framer-motion";
+import { FadeIn } from "../animation/fade-in";
 
 export function Features() {
   const features = [
@@ -63,41 +67,53 @@ export function Features() {
 
   return (
     <section id="features" className="py-16 border-t border-gray-800">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Why Choose Screenpick
-        </h2>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Our AI-powered platform makes finding your next favorite movie
-          effortless and enjoyable.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {features.map((feature, index) => (
-          <div
-            key={index}
-            className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-purple-500 transition-all duration-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)] group"
-          >
-            <div className="mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              {feature.icon}
-            </div>
-            <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-            <p className="text-gray-400">{feature.description}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-16 text-center">
-        <div className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-[1px]">
-          <button className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full transition-colors">
-            Get Started Now
-          </button>
+      <FadeIn delay={0.3}>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Why Choose Screenpick
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Our AI-powered platform makes finding your next favorite movie
+            effortless and enjoyable.
+          </p>
         </div>
-        <p className="mt-4 text-gray-400">
-          No sign-up required. Start discovering movies instantly.
-        </p>
-      </div>
+      </FadeIn>
+      <StaggerChildren staggerDelay={0.3}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <StaggerItem key={index}>
+              <motion.div
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.3)",
+                }}
+                className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-purple-500 transition-all duration-300 h-full"
+              >
+                <motion.div
+                  className="mb-4"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  {feature.icon}
+                </motion.div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-400">{feature.description}</p>
+              </motion.div>
+            </StaggerItem>
+          ))}
+        </div>
+
+        <div className="mt-16 text-center">
+          <div className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-[1px]">
+            <button className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full transition-colors">
+              Get Started Now
+            </button>
+          </div>
+          <p className="mt-4 text-gray-400">
+            No sign-up required. Start discovering movies instantly.
+          </p>
+        </div>
+      </StaggerChildren>
     </section>
   );
 }

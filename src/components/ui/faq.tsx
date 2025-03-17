@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { FadeIn } from "../animation/fade-in";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -43,38 +45,60 @@ export function Faq() {
 
   return (
     <section id="faq" className="py-16 border-t border-gray-800">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Everything you need to know about our AI movie recommendation
-          generator
-        </p>
-      </div>
+      <FadeIn direction="up" delay={0.2}>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Everything you need to know about our AI movie recommendation
+            generator
+          </p>
+        </div>
+      </FadeIn>
 
       <div className="max-w-3xl mx-auto">
         {faqs.map((faq, index) => (
-          <div key={index} className="border-b border-gray-700 last:border-b-0">
-            <button
+          <motion.div
+            key={index}
+            className="border-b border-gray-700 last:border-b-0"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <motion.button
               className="flex justify-between items-center w-full py-5 text-left"
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+              whileTap={{ scale: 0.99 }}
             >
               <h3 className="text-lg font-semibold">{faq.question}</h3>
-              {openIndex === index ? (
-                <ChevronUp className="h-5 w-5 text-purple-400" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+              <motion.div
+                animate={{ rotate: openIndex === index ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {openIndex === index ? (
+                  <ChevronUp className="h-5 w-5 text-purple-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                )}
+              </motion.div>
+            </motion.button>
+            <AnimatePresence>
+              {openIndex === index && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-gray-300 pb-5">{faq.answer}</p>
+                </motion.div>
               )}
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ${
-                openIndex === index ? "max-h-96 pb-5" : "max-h-0"
-              }`}
-            >
-              <p className="text-gray-300">{faq.answer}</p>
-            </div>
-          </div>
+            </AnimatePresence>
+          </motion.div>
         ))}
       </div>
     </section>
