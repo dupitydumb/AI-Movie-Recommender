@@ -30,7 +30,7 @@ export const metadata: Metadata = {
       "Discover your next favorite movie with our AI-powered recommendation engine. Get personalized suggestions based on your mood and preferences.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://opengraph.b-cdn.net/production/images/2161793f-193f-4d1d-81af-c32901853530.jpg?token=LzPD2V4bNX5B8NQ59qUlIwyPh5Ptq0irwzYZzlz_f0A&height=630&width=1200&expires=33278216178",
         width: 1200,
         height: 630,
         alt: "Screenpick - AI Movie Recommendation Generator",
@@ -42,7 +42,9 @@ export const metadata: Metadata = {
     title: "Screenpick - AI Movie Recommendation Generator",
     description:
       "Discover your next favorite movie with our AI-powered recommendation engine.",
-    images: ["/og-image.jpg"],
+    images: [
+      "https://opengraph.b-cdn.net/production/images/2161793f-193f-4d1d-81af-c32901853530.jpg?token=LzPD2V4bNX5B8NQ59qUlIwyPh5Ptq0irwzYZzlz_f0A&height=630&width=1200&expires=33278216178",
+    ],
     creator: "@Screenpick",
   },
   robots: {
@@ -57,7 +59,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://Screenpick.io",
+    canonical: "https://Screenpick.fun",
   },
   verification: {
     google: "aeZs0gNhABslw_UXbjBW8SSu8PALbQhO8cx9oaD92yE",
