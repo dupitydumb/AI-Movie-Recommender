@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     canonical: "https://Screenpick.io",
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "aeZs0gNhABslw_UXbjBW8SSu8PALbQhO8cx9oaD92yE",
   },
 };
 
