@@ -41,7 +41,7 @@
 }
 
 .movie-card {
-  height: 65vh;
+  height: 105vh;
 }
 
 .movie-card:hover {
@@ -287,5 +287,45 @@
 
   .promt-recs {
     font-size: medium;
+  }
+
+  @media (min-width: 1024) and (max-width: 1280) {
+    .wrapper {
+      max-width: 100%;
+      padding: 12px;
+    }
+  
+    .search-bar {
+      width: 70%;
+    }
+  
+    .hero {
+      font-size: 2.5rem;
+      padding: 20px;
+    }
+  
+    .sub-hero {
+      font-size: 1.3rem;
+      padding: 20px;
+    }
+  
+    .movie-list {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 80%;
+    }
+  
+    .search-form {
+      width: 70%;
+      padding: 12px;
+    }
+  
+    .button {
+      padding: 7px 14px;
+    }
+  
+    .promt-recs {
+      font-size: medium;
+    }
   }
 }
