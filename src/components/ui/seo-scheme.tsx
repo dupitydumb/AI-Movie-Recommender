@@ -6,11 +6,11 @@ export function SeoSchema() {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://Screenpick.io/#website",
-        url: "https://Screenpick.io/",
-        name: "Screenpick - AI Movie Recommendation Generator",
+        "@id": "https://Screenpick.fun/#website",
+        url: "https://Screenpick.fun/",
+        name: "Screenpick - AI Movie Recommendations and Personalized Movie Suggestions",
         description:
-          "Discover your next favorite movie with our AI-powered recommendation engine.",
+          "Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love.",
         potentialAction: [
           {
             "@type": "SearchAction",
@@ -25,13 +25,13 @@ export function SeoSchema() {
       },
       {
         "@type": "Organization",
-        "@id": "https://Screenpick.io/#organization",
+        "@id": "https://Screenpick.fun/#organization",
         name: "Screenpick",
-        url: "https://Screenpick.io/",
+        url: "https://Screenpick.fun/",
         logo: {
           "@type": "ImageObject",
           inLanguage: "en-US",
-          url: "https://Screenpick.io/logo.png",
+          url: "https://Screenpick.fun/logo.png",
           width: 512,
           height: 512,
           caption: "Screenpick",

@@ -108,14 +108,23 @@ function parseJsonWithBackticks(input: string) {
 }
 
 async function getMovieDetails(movieName: string) {
-  const apikey = process.env.TMBD;
+  const apikey = process.env.TMDB;
   const [title, year] = movieName.match(/(.*)\s(\d{4})$/)?.slice(1) || [];
 
   console.log("Searching for movie:", title, year);
-  const response = await fetch(
-    `https://api.themoviedb.org/3/search/movie?api_key=${apikey}&query=${title}&include_adult=false&sort_by=vote_count.desc&primary_release_year=${year}`
-  );
+  const url = `https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=false&language=en-US&page=1`;
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${apikey}`,
+    }
+  };
+  const response = await fetch(url, options);
   const data = await response.json();
-  const movie = data.results[0];
-  movies.push(movie);
+  console.log("TMDb API response:", data);
+  const movie = data.results && data.results.length > 0 ? data.results[0] : null;
+  if (movie) {
+    movies.push(movie);
+  }
 }

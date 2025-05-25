@@ -27,6 +27,7 @@ interface MovieCardProps {
   rating: number;
   posterPath: string;
   aireview: string;
+  className?: string;
 }
 
 export function MovieCard({
@@ -37,9 +38,10 @@ export function MovieCard({
   rating,
   posterPath,
   aireview,
+  className,
 }: MovieCardProps) {
   return (
-    <Card className="movie-card overflow-hidden bg-gray-800/50 border-gray-700 hover:border-purple-500 transition-all duration-300 h-full flex flex-col">
+    <Card className={`movie-card overflow-hidden bg-gray-800/50 border-gray-700 hover:border-purple-500 transition-all duration-300 h-full flex flex-col ${className}`}>
       <div className="relative aspect-[2/3] w-full">
         <Image
           src={`https://image.tmdb.org/t/p/w500/${posterPath}` || ""}
@@ -52,7 +54,9 @@ export function MovieCard({
 
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start gap-2">
-          <h3 className="font-bold text-lg line-clamp-1">{title}</h3>
+          <h3 className="font-bold text-lg text-gray-200 line-clamp-2">
+            {title}
+          </h3>
           <div className="flex items-center gap-1 text-yellow-400">
             <Star className="h-4 w-4 fill-yellow-400" />
             <span className="text-sm">{rating.toFixed(1)}</span>

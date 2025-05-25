@@ -59,7 +59,7 @@ export function WatchOptions({ movieId, watchProviders }: WatchOptionsProps) {
                         <Button
                           variant="default"
                           className={`w-full bg-purple-600 hover:bg-purple-700`}
-                          onClick={() => window.open(`https://www.themoviedb.org/movie/${movieId}/watch?locale=US`, "_blank")}
+                          onClick={() => window.open(watchProviders?.results?.US?.link || `https://www.themoviedb.org/movie/${movieId}/watch?locale=US`, "_blank")}
                         >
                           Watch Now
                           <ExternalLink className="ml-2 h-4 w-4" />
@@ -105,7 +105,7 @@ export function WatchOptions({ movieId, watchProviders }: WatchOptionsProps) {
                         <Button
                           variant="default"
                           className="w-full bg-purple-600 hover:bg-purple-700"
-                          onClick={() => window.open(`https://www.themoviedb.org/movie/${movieId}/watch?locale=US`, "_blank")}
+                          onClick={() => window.open(watchProviders?.results?.US?.link || `https://www.themoviedb.org/movie/${movieId}/watch?locale=US`, "_blank")}
                         >
                           Rent or Buy <ExternalLink className="ml-2 h-4 w-4" />
                         </Button>

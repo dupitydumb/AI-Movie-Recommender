@@ -10,13 +10,15 @@ import { WatchOptions } from "@/components/ui/watch-options"
 import { MovieDetails } from "@/components/ui/movie-details"
 import { FadeIn } from "@/components/animation/fade-in"
 import { Loader2 } from "lucide-react"
-import axios from "axios"
+import { SimilarMovies } from "@/app/components/similar-movies";
+import { useRouter } from 'next/navigation';
 
 export default function WatchMoviePage() {
-  const params = useParams()
-  const movieId = params.id as string
+  const params = useParams();
+  const movieId = params.id as string;
 
   const [movie, setMovie] = useState<any>(null);
+  const [similarMovies, setSimilarMovies] = useState<any[]>([]);
   const [watchProviders, setWatchProviders] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +72,23 @@ export default function WatchMoviePage() {
 
           setWatchProviders(watchProvidersData);
 
+          // Fetch similar movies
+          const similarMoviesUrl = `https://api.themoviedb.org/3/movie/${movieId}/similar?language=en-US&page=1`;
+          const similarMoviesOptions = {
+            method: 'GET',
+            headers: {
+              accept: 'application/json',
+              Authorization: `Bearer ${apiKey}`
+            }
+          };
+
+          const similarMoviesResponse = await fetch(similarMoviesUrl, similarMoviesOptions);
+          const similarMoviesData = await similarMoviesResponse.json();
+
+          console.log("Similar Movies:", similarMoviesData);
+
+          setSimilarMovies(similarMoviesData.results);
+
         } catch (err: any) {
           setError("Failed to load movie details.");
         }
@@ -81,8 +100,8 @@ export default function WatchMoviePage() {
       }
     };
 
-    fetchMovieDetails()
-  }, [movieId])
+    fetchMovieDetails();
+  }, [movieId]);
 
   if (isLoading) {
     return (
@@ -143,6 +162,10 @@ export default function WatchMoviePage() {
 
         <FadeIn delay={0.2}>
           <WatchOptions movieId={movieId} watchProviders={watchProviders} />
+        </FadeIn>
+
+        <FadeIn delay={0.4}>
+          <SimilarMovies movies={similarMovies} />
         </FadeIn>
       </main>
       <Footer />

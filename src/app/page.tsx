@@ -68,6 +68,7 @@ export default function Home() {
           alert(data.error + "Token: " + process.env.API_KEY);
         } else {
           if (data.movies.length === 0) {
+            console.log("No movies data found", data);
             setError("Sorry, we couldn't get any movie recommendations.");
           } else {
             setMovies(data.movies);
@@ -109,13 +110,11 @@ export default function Home() {
               <Box textAlign="center">
                 <section className="py-12 text-center">
                   <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                    <AnimatedText text="Movie AI Recommender" />
+                    <AnimatedText text="AI Movie Recommendations and Personalized Movie Suggestions" />
                   </h1>
                   <FadeIn delay={0.5}>
                     <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
-                      Discover your next favorite movie with our AI-powered
-                      recommendation engine. Just tell us what you're in the
-                      mood for!
+                      Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love. Just tell us what you're in the mood for!
                     </p>
                   </FadeIn>
                 </section>

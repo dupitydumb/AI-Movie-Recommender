@@ -23,7 +23,7 @@ export function MovieDetails({ movie }: MovieDetailsProps) {
     <div className="bg-gray-800/30 border border-gray-700 rounded-xl overflow-hidden">
       <div className="md:flex">
         <motion.div
-          className="md:w-1/3 lg:w-1/4 relative aspect-[2/3] md:aspect-auto"
+          className="w-full md:w-1/3 lg:w-1/4 relative aspect-[2/3] md:aspect-auto"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -33,7 +33,8 @@ export function MovieDetails({ movie }: MovieDetailsProps) {
             alt={movie.title}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ maxWidth: "100%" }}
           />
         </motion.div>
 
@@ -86,4 +87,3 @@ export function MovieDetails({ movie }: MovieDetailsProps) {
     </div>
   )
 }
-

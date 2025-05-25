@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title:
-    "Screenpick - AI Movie Recommendation Generator | Find Your Perfect Movie",
+    "Screenpick - AI Movie Recommendations and Personalized Movie Suggestions",
   description:
-    "Discover your next favorite movie with Screenpick's AI-powered recommendation engine. Get personalized movie suggestions based on your preferences, mood, and interests.",
+    "Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love.",
   keywords:
-    "AI movie recommendations, movie recommendation generator, AI movie suggestions, find movies to watch, personalized movie recommendations, movie AI",
+    "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations",
   openGraph: {
     type: "website",
     locale: "en_US",
