@@ -67,7 +67,7 @@ export function MovieCard({
 
       <CardFooter className="p-4 pt-0">
         <Link
-          href={`https://www.myflixed.fun/watch.html?id=${id}`}
+          href={`/movie/${id}/watch/`}
           passHref
           target="_blank"
           rel="noopener noreferrer"
