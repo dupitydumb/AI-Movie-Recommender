@@ -190,12 +190,12 @@ getMovieDetails();`,
   ];
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="mx-auto px-4">
       <div className="py-12 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Screenpick API Documentation
         </h1>
-        <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+        <p className="text-xl text-gray-400 mx-auto">
           Integrate AI-powered movie recommendations into your applications with
           our simple and powerful API.
         </p>
@@ -251,7 +251,7 @@ getMovieDetails();`,
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 bg-gray-900/50 rounded-lg border border-gray-700 p-6 overflow-y-auto">
           {/* Introduction */}
           <section id="introduction" className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Introduction</h2>
@@ -437,52 +437,54 @@ getMovieDetails();`,
                   {/* Parameters */}
                   <div className="mb-6">
                     <h4 className="text-lg font-semibold mb-3">Parameters</h4>
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr>
-                          <th className="border border-gray-700 px-4 py-2 text-left">
-                            Name
-                          </th>
-                          <th className="border border-gray-700 px-4 py-2 text-left">
-                            Type
-                          </th>
-                          <th className="border border-gray-700 px-4 py-2 text-left">
-                            Required
-                          </th>
-                          <th className="border border-gray-700 px-4 py-2 text-left">
-                            Description
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {endpoint.parameters.map((param) => (
-                          <tr key={param.name}>
-                            <td className="border border-gray-700 px-4 py-2 font-mono text-sm">
-                              {param.name}
-                            </td>
-                            <td className="border border-gray-700 px-4 py-2">
-                              {param.type}
-                            </td>
-                            <td className="border border-gray-700 px-4 py-2">
-                              {param.required ? (
-                                <span className="text-green-500">Yes</span>
-                              ) : (
-                                <span className="text-gray-400">No</span>
-                              )}
-                              {!param.required && "default" in param && (
-                                <span className="text-gray-400 ml-2">
-                                  (Default:{" "}
-                                  <code>{JSON.stringify(param.default)}</code>)
-                                </span>
-                              )}
-                            </td>
-                            <td className="border border-gray-700 px-4 py-2">
-                              {param.description}
-                            </td>
+                    <div className="table-responsive">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr>
+                            <th className="border border-gray-700 px-4 py-2 text-left">
+                              Name
+                            </th>
+                            <th className="border border-gray-700 px-4 py-2 text-left">
+                              Type
+                            </th>
+                            <th className="border border-gray-700 px-4 py-2 text-left">
+                              Required
+                            </th>
+                            <th className="border border-gray-700 px-4 py-2 text-left">
+                              Description
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {endpoint.parameters.map((param) => (
+                            <tr key={param.name}>
+                              <td className="border border-gray-700 px-4 py-2 font-mono text-sm">
+                                {param.name}
+                              </td>
+                              <td className="border border-gray-700 px-4 py-2">
+                                {param.type}
+                              </td>
+                              <td className="border border-gray-700 px-4 py-2">
+                                {param.required ? (
+                                  <span className="text-green-500">Yes</span>
+                                ) : (
+                                  <span className="text-gray-400">No</span>
+                                )}
+                                {!param.required && "default" in param && (
+                                  <span className="text-gray-400 ml-2">
+                                    (Default:{" "}
+                                    <code>{JSON.stringify(param.default)}</code>)
+                                  </span>
+                                )}
+                              </td>
+                              <td className="border border-gray-700 px-4 py-2">
+                                {param.description}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
                   {/* Response */}
@@ -510,33 +512,33 @@ getMovieDetails();`,
                         <TabsTrigger value="node">Node.js</TabsTrigger>
                       </TabsList>
                       <TabsContent value="curl" className="mt-0">
-                        <div className="bg-gray-800 p-4 rounded-md overflow-auto">
-                          <pre className="text-sm">
-                            <code>{endpoint.codeExamples.curl}</code>
-                          </pre>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="javascript" className="mt-0">
-                        <div className="bg-gray-800 p-4 rounded-md overflow-auto">
-                          <pre className="text-sm">
-                            <code>{endpoint.codeExamples.javascript}</code>
-                          </pre>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="python" className="mt-0">
-                        <div className="bg-gray-800 p-4 rounded-md overflow-auto">
-                          <pre className="text-sm">
-                            <code>{endpoint.codeExamples.python}</code>
-                          </pre>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="node" className="mt-0">
-                        <div className="bg-gray-800 p-4 rounded-md overflow-auto">
-                          <pre className="text-sm">
-                            <code>{endpoint.codeExamples.node}</code>
-                          </pre>
-                        </div>
-                      </TabsContent>
+                    <div className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <pre className="text-sm">
+                        <code>{endpoint.codeExamples.curl}</code>
+                      </pre>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="javascript" className="mt-0">
+                    <div className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <pre className="text-sm">
+                        <code>{endpoint.codeExamples.javascript}</code>
+                      </pre>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="python" className="mt-0">
+                    <div className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <pre className="text-sm">
+                        <code>{endpoint.codeExamples.python}</code>
+                      </pre>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="node" className="mt-0">
+                    <div className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <pre className="text-sm">
+                        <code>{endpoint.codeExamples.node}</code>
+                      </pre>
+                    </div>
+                  </TabsContent>
                     </Tabs>
                   </div>
                 </div>

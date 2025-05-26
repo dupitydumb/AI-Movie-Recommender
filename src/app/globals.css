@@ -78,3 +78,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  max-width: 100%;
+  font-size: 0.875rem; /* 14px */
+}
