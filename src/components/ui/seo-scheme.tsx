@@ -8,9 +8,9 @@ export function SeoSchema() {
         "@type": "WebSite",
         "@id": "https://Screenpick.fun/#website",
         url: "https://Screenpick.fun/",
-        name: "Screenpick - AI Movie Recommendations and Personalized Movie Suggestions",
+        name: "Screenpick: AI Movie Finder",
         description:
-          "Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love.",
+          "Discover movies you'll love with Screenpick, the AI-powered movie recommendation engine. Get personalized suggestions and find your next favorite film today!",
         potentialAction: [
           {
             "@type": "SearchAction",

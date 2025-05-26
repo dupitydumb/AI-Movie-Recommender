@@ -3,13 +3,13 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-gray-800 bg-black/50 py-8">
+    <footer className="border-t border-gray-800 bg-black/90 py-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Film className="h-6 w-6 text-purple-500" />
-              <span className="font-bold text-xl">Screenpick</span>
+              <span className="font-bold text-xl text-white">Screenpick</span>
             </Link>
             <p className="text-gray-400 text-sm">
               Discover your next favorite movie with our AI-powered
@@ -18,7 +18,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Links</h3>
+            <h3 className="font-semibold mb-4 text-white">Links</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <Link
@@ -48,7 +48,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
+            <h3 className="font-semibold mb-4 text-white">Legal</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <Link
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Connect</h3>
+            <h3 className="font-semibold mb-4 text-white">Connect</h3>
             <div className="flex gap-4">
               <Link
                 href="https://twitter.com"

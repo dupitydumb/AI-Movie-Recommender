@@ -9,15 +9,17 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
+    <header className="border-b border-gray-800 bg-black/90 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Film className="h-6 w-6 text-purple-500" />
-          <span className="font-bold text-xl">Screenpick</span>
+          <span className="font-bold text-xl text-gray-200">
+            Screenpick
+          </span>
         </Link>
 
         {/* Desktop navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-6 text-gray-200">
           <Link
             href="/"
             className="text-sm hover:text-purple-400 transition-colors"
