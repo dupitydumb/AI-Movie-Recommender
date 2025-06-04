@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Head from "next/head";
+import { SeoSchema } from "@/components/ui/seo-scheme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title:
-    "AI Movie Recommendations and Personalized Movie Suggestions",
+  title: "Movie Recommender: Find the Best Movie Recommendations",
   description:
-    "Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love.",
+    "Looking for a movie recommender? Our AI-powered movie recommendation engine provides personalized suggestions to help you discover movies you'll love.",
   keywords:
     "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations, discover movies, movie discovery, movie suggestions AI, find your next movie, movie recommendation system, personalized movie suggestions, AI-powered movie recommendations",
   openGraph: {
@@ -92,6 +92,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <SeoSchema />
       </body>
     </html>
   );

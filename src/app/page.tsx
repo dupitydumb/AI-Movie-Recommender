@@ -36,6 +36,7 @@ import { FadeIn } from "@/components/animation/fade-in";
 import Head from "next/head";
 import Script from "next/script";
 import ReactGA from "react-ga4";
+
 import { motion } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
@@ -51,7 +52,11 @@ export default function Home() {
   ReactGA.initialize("G-3YKPKP74MD");
 
   async function run(prompt: string) {
-    if (loading) return;
+    if (!prompt || prompt.trim() === "") {
+      setError("Please enter a valid movie prompt.");
+      return;
+    }
+    if (isLoading) return;
     setMovies([]);
     setIsLoading(true);
     const promise = fetch("/api/search?q=" + prompt, {
@@ -103,22 +108,70 @@ export default function Home() {
     <Provider>
       <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
         <SeoSchema />
+        <Head>
+          <meta
+            name="description"
+            content="Find the best movie recommendations with our AI-powered movie recommender. Get personalized suggestions and discover movies you'll love."
+          />
+        </Head>
         <Header />
         <div className="wrapper">
           <Box p={8}>
             <VStack gap={4}>
               <Box textAlign="center">
-                <section className="py-12 text-center">
-                  <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                    <AnimatedText text="AI Movie Recommendations" />
-                  </h1>
-                  <FadeIn delay={0.2}>
-                    <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto" data-lcp>
-                      Discover your next favorite movie with AI-powered
-                      recommendations. Just tell us what you're in the mood for,
-                      and we'll find the perfect films for you!
-                    </p>
-                  </FadeIn>
+                <section className="py-16 text-center flex flex-col items-center relative">
+                  {/* Animated background shapes */}
+                  <div className="absolute inset-0 pointer-events-none z-0">
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 blur-3xl opacity-30 w-[600px] h-[300px] bg-gradient-to-r from-purple-500 via-pink-400 to-red-400 rounded-full animate-pulse"></div>
+                    <div className="absolute bottom-0 right-0 blur-2xl opacity-20 w-[300px] h-[200px] bg-gradient-to-br from-purple-700 to-purple-900 rounded-full"></div>
+                  </div>
+                  <div className="w-full max-w-2xl px-4 z-10">
+                    <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 leading-tight drop-shadow-lg">
+                      <AnimatedText text="🎬 Unleash Movie Magic with AI" />
+                    </h1>
+                    <FadeIn delay={0.2}>
+                      <p className="text-base md:text-lg mb-8 text-gray-300" data-lcp>
+                        Tired of endless scrolling? Let our <span className="font-semibold text-purple-300">AI Movie Recommender</span> be your personal film curator.<br />
+                        Describe your mood, favorite genre, or wildest movie wish—our AI will conjure up the perfect picks for your next movie night!
+                      </p>
+                    </FadeIn>
+                    <FadeIn delay={0.4}>
+                      <div className="flex flex-wrap justify-center gap-3 mb-6">
+                        {[
+                          "Surprise me with a hidden gem",
+                          "Epic adventures for a rainy day",
+                          "Movies to watch with friends",
+                          "Feel-good films for a cozy night",
+                        ].map((suggestion) => (
+                            <motion.button
+                            key={suggestion}
+                            onClick={() => {
+                              setPrompt(suggestion);
+                              run(suggestion);
+                            }}
+                            className="px-4 py-2 bg-purple-700/80 hover:bg-pink-600/80 text-sm rounded-full text-white font-medium shadow transition-colors border border-purple-500 hover:border-pink-400"
+                            whileTap={{ scale: 0.95 }}
+                            >
+                            {suggestion}
+                            </motion.button>
+                        ))}
+                      </div>
+                    </FadeIn>
+                    <FadeIn delay={0.6}>
+                      
+                      <Text className="text-sm text-gray-400 mb-4">
+                        Just type your movie wish and let the magic happen!
+                      </Text>
+                    </FadeIn>
+                    <FadeIn delay={0.8}>
+                      <div className="mt-8">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/70 rounded-lg text-sm text-gray-300 shadow">
+                          <svg className="w-5 h-5 text-purple-400 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V6M5 12l7-7 7 7" /></svg>
+                          Start by telling us what you want to watch!
+                        </span>
+                      </div>
+                    </FadeIn>
+                  </div>
                 </section>
               </Box>
               <Separator />
@@ -200,6 +253,8 @@ export default function Home() {
                   )}
                 </div>
               </FadeIn>
+                
+
               {/* Prompt suggestions */}
               <div className="mb-8">
                 <p className="text-sm text-gray-400 mb-2">Try these prompts:</p>
@@ -264,6 +319,26 @@ export default function Home() {
           <section className="py-12 text-center">
             <Features />
           </section>
+            <section className="py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <div className="bg-gradient-to-br from-purple-800/70 to-gray-900/80 rounded-2xl p-8 shadow-lg border border-purple-700/30">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+                How Our Movie Recommender Works
+              </h2>
+              <p className="text-gray-300 text-lg">
+                Our AI-powered movie recommender analyzes your preferences and suggests movies you'll love. We use a sophisticated algorithm to understand your taste and provide personalized recommendations.
+              </p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-800/70 to-gray-900/80 rounded-2xl p-8 shadow-lg border border-purple-700/30">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+                Benefits of Using a Movie Recommender
+              </h2>
+              <p className="text-gray-300 text-lg">
+                Discover new movies, save time searching, and get personalized recommendations tailored to your unique taste. Our movie recommender is the perfect way to find your next favorite film.
+              </p>
+              </div>
+            </div>
+            </section>
           <section className="py-12">
             <Faq />
           </section>
