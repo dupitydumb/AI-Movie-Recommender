@@ -112,8 +112,8 @@ export default function Home() {
                   <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
                     <AnimatedText text="AI Movie Recommendations" />
                   </h1>
-                  <FadeIn delay={0.5}>
-                    <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
+                  <FadeIn delay={0.2}>
+                    <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto" data-lcp>
                       Discover your next favorite movie with AI-powered
                       recommendations. Just tell us what you're in the mood for,
                       and we'll find the perfect films for you!

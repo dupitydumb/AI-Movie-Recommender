@@ -15,17 +15,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title:
-    "Screenpick - AI Movie Recommendations and Personalized Movie Suggestions",
+    "AI Movie Recommendations and Personalized Movie Suggestions",
   description:
     "Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love.",
   keywords:
-    "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations",
+    "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations, discover movies, movie discovery, movie suggestions AI, find your next movie, movie recommendation system, personalized movie suggestions, AI-powered movie recommendations",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://Screenpick.fun",
     siteName: "Screenpick",
-    title: "Screenpick - AI Movie Recommendation Generator",
+    title: "AI Movie Recommendation Generator",
     description:
       "Discover your next favorite movie with our AI-powered recommendation engine. Get personalized suggestions based on your mood and preferences.",
     images: [
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Screenpick - AI Movie Recommendation Generator",
+    title: "AI Movie Recommendation Generator",
     description:
       "Discover your next favorite movie with our AI-powered recommendation engine.",
     images: [
