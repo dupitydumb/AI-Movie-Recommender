@@ -41,7 +41,7 @@ export function MovieCard({
   className,
 }: MovieCardProps) {
   return (
-    <Card className={`movie-card overflow-hidden bg-gray-800/50 border-gray-700 hover:border-purple-500 transition-all duration-300 h-full flex flex-col ${className}`}>
+    <Card className={`movie-card overflow-hidden bg-gray-800/50 border-gray-700 hover:border-purple-500 transition-all duration-300 flex flex-col ${className}`}>
       <div className="relative aspect-[2/3] w-full">
         <Image
           src={`https://image.tmdb.org/t/p/w500/${posterPath}` || ""}
@@ -65,7 +65,7 @@ export function MovieCard({
         <div className="text-sm text-gray-400">{releaseYear}</div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 flex-grow">
+      <CardContent className="p-4 pt-0">
         <p className="text-sm text-gray-300 line-clamp-3 mb-3">{aireview}</p>
       </CardContent>
 

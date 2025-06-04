@@ -41,7 +41,6 @@
 }
 
 .movie-card {
-  height: 105vh;
 }
 
 .movie-card:hover {
@@ -68,7 +67,6 @@
 
 .movie-card img {
   border-radius: 10px;
-  height: 150px;
   width: 80px;
   object-fit: cover;
 }
