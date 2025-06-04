@@ -70,6 +70,22 @@ export function WatchOptions({ movieId, watchProviders }: WatchOptionsProps) {
                 </StaggerItem>
               ))}
             </div>
+            <div className="mt-8 flex justify-center">
+              <Button
+                variant="outline"
+                className="border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white transition"
+                asChild
+              >
+                <a
+                  href={`https://www.cineverse.fun/movie/${movieId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Watch Free on Cineverse
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </div>
           </StaggerChildren>
         </TabsContent>
 

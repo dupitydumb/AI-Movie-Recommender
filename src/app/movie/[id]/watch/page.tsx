@@ -73,7 +73,7 @@ export default function WatchMoviePage() {
           setWatchProviders(watchProvidersData);
 
           // Fetch similar movies
-          const similarMoviesUrl = `https://api.themoviedb.org/3/movie/${movieId}/similar?language=en-US&page=1`;
+          const similarMoviesUrl = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?language=en-US&page=1`;
           const similarMoviesOptions = {
             method: 'GET',
             headers: {

@@ -110,11 +110,13 @@ export default function Home() {
               <Box textAlign="center">
                 <section className="py-12 text-center">
                   <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                    <AnimatedText text="AI Movie Recommendations and Personalized Movie Suggestions" />
+                    <AnimatedText text="AI Movie Recommendations" />
                   </h1>
                   <FadeIn delay={0.5}>
                     <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
-                      Discover your next favorite movie with our AI-powered movie recommendation engine. Get personalized movie suggestions and find movies you'll love. Just tell us what you're in the mood for!
+                      Discover your next favorite movie with AI-powered
+                      recommendations. Just tell us what you're in the mood for,
+                      and we'll find the perfect films for you!
                     </p>
                   </FadeIn>
                 </section>
@@ -205,19 +207,16 @@ export default function Home() {
                   <div className="flex flex-wrap gap-2">
                     {[
                       "Action movies from the 90s",
-                      "Sci-fi with time travel",
                       "Feel-good comedies",
-                      "Animated family movies",
-                      "Horror with ghosts",
-                      "Romantic comedies",
-                      "Crime thrillers",
-                      "Fantasy adventures",
-                      "Superhero movies",
-                      "Documentaries about space",
-                      "Melandcholic dramas",
-                      "Movies about music",
+                      "Sci-fi movies with time travel",
+                      "Horror movies with a twist",
+                      "Romantic dramas set in Paris",
+                      "Animated movies for all ages",
+                      "Documentaries about space exploration",
+                      "Thrillers with unexpected endings",
+                      "Classic films from the 70s",
                       "Movies based on true stories",
-                      "Movies with strong characters",
+                      "Fantasy adventures with magical creatures",
                     ].map((suggestion) => (
                       <StaggerItem key={suggestion}>
                         <motion.button

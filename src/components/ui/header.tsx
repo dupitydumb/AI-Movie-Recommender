@@ -32,12 +32,19 @@ export function Header() {
           >
             Documentation
           </Link>
-          <Button
+            <Button
+            asChild
             variant="default"
             className="bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            Get Started
-          </Button>
+            >
+            <a
+              href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get Started
+            </a>
+            </Button>
         </nav>
 
         {/* Mobile navigation */}

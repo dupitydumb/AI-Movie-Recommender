@@ -72,8 +72,6 @@ export function MovieCard({
       <CardFooter className="p-4 pt-0">
         <Link
           href={`/movie/${id}/watch/`}
-          passHref
-          target="_blank"
           rel="noopener noreferrer"
           className="w-full"
         >
