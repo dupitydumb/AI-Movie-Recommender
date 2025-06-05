@@ -68,12 +68,10 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.error) {
           alert(data.error + "Token: " + process.env.API_KEY);
         } else {
           if (data.movies.length === 0) {
-            console.log("No movies data found", data);
             setError("Sorry, we couldn't get any movie recommendations.");
           } else {
             setMovies(data.movies);
