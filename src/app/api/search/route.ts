@@ -18,7 +18,12 @@ export async function GET(req: NextRequest) {
     req.headers.get("X-RapidAPI-Key");
 
   if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   }
 
   const allowedToken = (await Redis.fromEnv().hget(authHeader, "token")) || "";
@@ -27,7 +32,12 @@ export async function GET(req: NextRequest) {
   // }
 
   if (authHeader !== allowedToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   }
 
   if (authHeader == process.env.API_KEY_TEST) {
@@ -41,15 +51,30 @@ export async function GET(req: NextRequest) {
 
   const name = searchParams.get("q");
   if (!name) {
-    return NextResponse.json({ error: "No name provided" }, { status: 400 });
+    return new NextResponse(JSON.stringify({ error: "No name provided" }), {
+      status: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   }
   const input = sanitizeInput(name);
   const { success } = await ratelimit.limit("search");
   if (!success) {
-    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   }
   const result = await run(input);
-  return NextResponse.json(result);
+  return new NextResponse(JSON.stringify(result), {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
 }
 function sanitizeInput(input: string): string {
   return input.replace(/[^a-zA-Z0-9 ]/g, "");
