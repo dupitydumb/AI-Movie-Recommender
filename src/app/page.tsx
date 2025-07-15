@@ -31,13 +31,15 @@ import { SeoSchema } from "@/components/ui/seo-scheme";
 import * as React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { Send } from "lucide-react";
+import { Send, Search, Sparkles, Film } from "lucide-react";
 import { FadeIn } from "@/components/animation/fade-in";
+import { LoadingCard } from "@/components/ui/loading-card";
+import { WhyChooseUs } from "@/components/ui/why-choose-us";
 import Head from "next/head";
 import Script from "next/script";
 import ReactGA from "react-ga4";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
 import { AnimatedText } from "@/components/animation/animated-text";
@@ -104,7 +106,12 @@ export default function Home() {
 
   return (
     <Provider>
-      <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+        {/* Skip Link for Accessibility */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        
         <SeoSchema />
         <Head>
           <meta
@@ -113,239 +120,314 @@ export default function Home() {
           />
         </Head>
         <Header />
-        <div className="wrapper">
-          <Box p={8}>
-            <VStack gap={4}>
-              <Box textAlign="center">
-                <section className="py-16 text-center flex flex-col items-center relative">
-                  {/* Animated background shapes */}
-                  <div className="absolute inset-0 pointer-events-none z-0">
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 blur-3xl opacity-30 w-[600px] h-[300px] bg-gradient-to-r from-purple-500 via-pink-400 to-red-400 rounded-full animate-pulse"></div>
-                    <div className="absolute bottom-0 right-0 blur-2xl opacity-20 w-[300px] h-[200px] bg-gradient-to-br from-purple-700 to-purple-900 rounded-full"></div>
-                  </div>
-                  <div className="w-full max-w-2xl px-4 z-10">
-                    <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 leading-tight drop-shadow-lg">
-                      <AnimatedText text="🎬 Unleash Movie Magic with AI" />
-                    </h1>
-                    <FadeIn delay={0.2}>
-                      <p className="text-base md:text-lg mb-8 text-gray-300" data-lcp>
-                        Tired of endless scrolling? Let our <span className="font-semibold text-purple-300">AI Movie Recommender</span> be your personal film curator.<br />
-                        Describe your mood, favorite genre, or wildest movie wish—our AI will conjure up the perfect picks for your next movie night!
-                      </p>
-                    </FadeIn>
-                    <FadeIn delay={0.4}>
-                      <div className="flex flex-wrap justify-center gap-3 mb-6">
-                        {[
-                          "Surprise me with a hidden gem",
-                          "Epic adventures for a rainy day",
-                          "Movies to watch with friends",
-                          "Feel-good films for a cozy night",
-                        ].map((suggestion) => (
-                            <motion.button
-                            key={suggestion}
-                            onClick={() => {
-                              setPrompt(suggestion);
-                              run(suggestion);
-                            }}
-                            className="px-4 py-2 bg-purple-700/80 hover:bg-pink-600/80 text-sm rounded-full text-white font-medium shadow transition-colors border border-purple-500 hover:border-pink-400"
-                            whileTap={{ scale: 0.95 }}
-                            >
-                            {suggestion}
-                            </motion.button>
-                        ))}
-                      </div>
-                    </FadeIn>
-                    <FadeIn delay={0.6}>
-                      
-                      <Text className="text-sm text-gray-400 mb-4">
-                        Just type your movie wish and let the magic happen!
-                      </Text>
-                    </FadeIn>
-                    <FadeIn delay={0.8}>
-                      <div className="mt-8">
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/70 rounded-lg text-sm text-gray-300 shadow">
-                          <svg className="w-5 h-5 text-purple-400 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V6M5 12l7-7 7 7" /></svg>
-                          Start by telling us what you want to watch!
-                        </span>
-                      </div>
-                    </FadeIn>
-                  </div>
-                </section>
-              </Box>
-              <Separator />
-              <FadeIn direction="up" delay={0.2}>
-                <div className="search-form max-w-4xl mx-auto">
-                  <form
-                    onSubmit={handleSubmit}
-                    className="flex gap-2 mb-8 w-full items-center"
-                  >
-                    <Input
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="I'm in the mood for a sci-fi movie with time travel..."
-                      className="bg-gray-800/50 border-gray-700 text-white w-full px-4 py-2 rounded-lg focus:outline-none focus:ring focus:ring-purple-500"
-                    />
+        
+        {/* Hero Section */}
+        <main id="main-content" className="relative overflow-hidden">
+          {/* Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-20 left-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-red-500/5 via-purple-500/5 to-blue-500/5 rounded-full blur-3xl"></div>
+          </div>
+
+          {/* Hero Content */}
+          <section className="relative z-10 pt-20 pb-16 px-4">
+            <div className="max-w-6xl mx-auto text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="mb-8"
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-sm font-medium mb-6">
+                  <Sparkles className="w-4 h-4" />
+                  AI-Powered Movie Discovery
+                </div>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+                    Discover Your Next
+                  </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+                    Favorite Movie
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                  Tell us what you're in the mood for, and our AI will curate the perfect movie recommendations just for you. No more endless scrolling.
+                </p>
+              </motion.div>
+
+              {/* Search Form */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="max-w-3xl mx-auto mb-12"
+              >
+                <form onSubmit={handleSubmit} className="relative">
+                  <div className="flex flex-col md:flex-row gap-3 p-2 bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl focus-within:border-red-500/50 transition-colors">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="I want a sci-fi thriller with time travel..."
+                        className="w-full pl-12 pr-4 py-4 bg-transparent border-none text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-0"
+                        disabled={isLoading}
+                      />
+                    </div>
                     <Button
                       type="submit"
-                      disabled={isLoading}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      disabled={isLoading || !prompt.trim()}
+                      className="px-8 py-4 bg-red-500 hover:bg-red-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-w-[120px]"
                     >
-                      {isLoading ? "Thinking..." : <Send className="h-4 w-4" />}
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                          Searching
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Send className="w-4 h-4" />
+                          Discover
+                        </div>
+                      )}
                     </Button>
-                  </form>
-                  {error && (
-                    <div className="text-red-400 mb-4 text-center">{error}</div>
-                  )}
+                  </div>
+                </form>
 
-                  {movies.length > 0 && (
-                    <div>
-                      <h2 className="text-2xl font-bold mb-4">
-                        Recommended Movies
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Quick Suggestions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="mb-16"
+              >
+                <p className="text-gray-400 mb-4 text-sm uppercase tracking-wide font-medium">
+                  Popular Searches
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {[
+                    "Mind-bending thrillers",
+                    "Feel-good comedies",
+                    "Epic space adventures",
+                    "Hidden gems",
+                  ].map((suggestion) => (
+                    <motion.button
+                      key={suggestion}
+                      onClick={() => {
+                        setPrompt(suggestion);
+                        run(suggestion);
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-6 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 hover:border-gray-600 rounded-full text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium"
+                    >
+                      {suggestion}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Results Section */}
+          <section className="relative z-10 px-4 pb-20">
+            <div className="max-w-7xl mx-auto">
+              <AnimatePresence mode="wait">
+                {isLoading && (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-20"
+                  >
+                    <div className="inline-flex flex-col items-center gap-6 mb-12">
+                      <div className="relative">
+                        <div className="w-16 h-16 border-4 border-gray-800 rounded-full"></div>
+                        <div className="absolute inset-0 w-16 h-16 border-4 border-t-red-500 rounded-full animate-spin"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-xl font-semibold text-white">Finding perfect movies for you</p>
+                        <p className="text-gray-400">Our AI is analyzing thousands of films...</p>
+                      </div>
+                    </div>
+                    
+                    {/* Loading skeleton cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                      <LoadingCard count={8} />
+                    </div>
+                  </motion.div>
+                )}
+
+                {movies.length > 0 && !isLoading && (
+                  <motion.div
+                    key="results"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <div className="text-center mb-12">
+                      <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                        <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                          Your Personalized Recommendations
+                        </span>
                       </h2>
-                      <StaggerChildren delay={0.5}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {movies.map((movie) => {
-                            if (!movie) {
-                              return null;
-                            }
-                            return (
-                              <StaggerItem key={movie.id}>
+                      <p className="text-gray-400 text-lg">
+                        {movies.length} movies curated just for you
+                      </p>
+                    </div>
+
+                    <StaggerChildren delay={0.1}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {movies.map((movie) => {
+                          if (!movie) return null;
+                          return (
+                            <StaggerItem key={movie.id}>
+                              <motion.div
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                              >
                                 <MovieCard
                                   id={movie.id}
-                                  key={movie.id}
                                   title={movie.title}
                                   releaseYear={movie.release_date}
                                   rating={movie.vote_average}
                                   posterPath={movie.poster_path}
                                   aireview={movie.overview}
                                 />
-                              </StaggerItem>
-                            );
-                          })}
-                        </div>
-                      </StaggerChildren>
-                    </div>
-                  )}
-
-                  {!movies.length && !isLoading && !error && (
-                    <div className="text-center text-gray-400 py-12">
-                      <p>
-                        Ask for movie recommendations and they'll appear here!
-                      </p>
-                      <p className="text-sm mt-2">
-                        Try something like "Action movies from the 90s" or
-                        "Feel-good comedies"
-                      </p>
-                    </div>
-                  )}
-
-                  {isLoading && (
-                    <div className="flex justify-center py-12">
-                      <div className="animate-pulse flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-purple-600/50 mb-4"></div>
-                        <p className="text-purple-400">
-                          Finding the perfect movies for you...
-                        </p>
+                              </motion.div>
+                            </StaggerItem>
+                          );
+                        })}
                       </div>
-                    </div>
-                  )}
-                </div>
-              </FadeIn>
-                
-
-              {/* Prompt suggestions */}
-              <div className="mb-8">
-                <p className="text-sm text-gray-400 mb-2">Try these prompts:</p>
-                <StaggerChildren staggerDelay={0.3}>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "Action movies from the 90s",
-                      "Feel-good comedies",
-                      "Sci-fi movies with time travel",
-                      "Horror movies with a twist",
-                      "Romantic dramas set in Paris",
-                      "Animated movies for all ages",
-                      "Documentaries about space exploration",
-                      "Thrillers with unexpected endings",
-                      "Classic films from the 70s",
-                      "Movies based on true stories",
-                      "Fantasy adventures with magical creatures",
-                    ].map((suggestion) => (
-                      <StaggerItem key={suggestion}>
-                        <motion.button
-                          onClick={() => setPrompt(suggestion)}
-                          className="px-3 py-1.5 bg-gray-800/70 hover:bg-gray-700/70 text-sm rounded-full text-gray-300 transition-colors border border-gray-700 hover:border-purple-500"
-                        >
-                          {suggestion}
-                        </motion.button>
-                      </StaggerItem>
-                    ))}
-                  </div>
-                </StaggerChildren>
-              </div>
-
-              {/* <div className="movie-list">
-                {loading ? (
-                  <Box className="skeleton" marginBottom={4}>
-                    <Skeleton height="200px" marginBottom={4} />
-                    <Skeleton height="200px" marginBottom={4} />
-                    <Skeleton height="200px" marginBottom={4} />
-                  </Box>
-                ) : movies.length === 0 ? (
-                  <Text fontSize="lg" color="gray.500"></Text>
-                ) : (
-                  movies.map((movie) =>
-                    movie ? (
-                      <MovieCard
-                        key={movie.id}
-                        title={movie.title}
-                        releaseYear={movie.release_date}
-                        rating={movie.vote_average}
-                        posterPath={movie.poster_path}
-                        aireview={movie.overview}
-                      />
-                    ) : (
-                      <Text fontSize="lg" color="gray.500">
-                        <Separator />
-                      </Text>
-                    )
-                  )
+                    </StaggerChildren>
+                  </motion.div>
                 )}
-              </div> */}
-            </VStack>
-          </Box>
-          <section className="py-12 text-center">
-            <Features />
+
+                {!movies.length && !isLoading && !error && (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center py-20"
+                  >
+                    <Film className="w-16 h-16 text-gray-600 mx-auto mb-6" />
+                    <h3 className="text-2xl font-semibold text-gray-300 mb-4">
+                      Ready to discover amazing movies?
+                    </h3>
+                    <p className="text-gray-400 max-w-md mx-auto">
+                      Describe what you're in the mood for and let our AI find the perfect films for your next movie night.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </section>
-            <section className="py-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              <div className="bg-gradient-to-br from-purple-800/70 to-gray-900/80 rounded-2xl p-8 shadow-lg border border-purple-700/30">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
-                How Our Movie Recommender Works
-              </h2>
-              <p className="text-gray-300 text-lg">
-                Our AI-powered movie recommender analyzes your preferences and suggests movies you'll love. We use a sophisticated algorithm to understand your taste and provide personalized recommendations.
-              </p>
-              </div>
-              <div className="bg-gradient-to-br from-purple-800/70 to-gray-900/80 rounded-2xl p-8 shadow-lg border border-purple-700/30">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
-                Benefits of Using a Movie Recommender
-              </h2>
-              <p className="text-gray-300 text-lg">
-                Discover new movies, save time searching, and get personalized recommendations tailored to your unique taste. Our movie recommender is the perfect way to find your next favorite film.
-              </p>
+        </main>
+        
+        {/* Additional Sections */}
+        <div className="bg-gray-950/50">
+
+          {/* Why Choose Us Section */}
+          <section className="py-20 px-4">
+            <div className="max-w-6xl mx-auto">
+              <WhyChooseUs />
+            </div>
+          </section>
+
+          {/* How It Works Section */}
+          <section className="py-20 px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="mb-16"
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-sm font-medium mb-6">
+                  <Sparkles className="w-4 h-4" />
+                  How It Works
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                  AI-Powered Movie Discovery
+                </h2>
+                <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+                  Our sophisticated AI analyzes your preferences, mood, and viewing history to recommend movies you'll genuinely love. No more random suggestions—just personalized picks tailored to your taste.
+                </p>
+              </motion.div>
+
+              {/* Process Steps */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[
+                  {
+                    step: "1",
+                    title: "Describe Your Mood",
+                    description: "Tell us what you're in the mood for—genre, era, feeling, or specific themes."
+                  },
+                  {
+                    step: "2", 
+                    title: "AI Analysis",
+                    description: "Our AI processes thousands of movies to find perfect matches for your request."
+                  },
+                  {
+                    step: "3",
+                    title: "Discover & Enjoy", 
+                    description: "Get curated recommendations with detailed information about each movie."
+                  }
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.step}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                    viewport={{ once: true }}
+                    className="relative p-8 bg-gray-900/30 rounded-2xl border border-gray-800/50 hover:border-gray-700/50 transition-all duration-300"
+                  >
+                    <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto mb-6">
+                      <span className="text-red-400 font-bold text-xl">{item.step}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-4">{item.title}</h3>
+                    <p className="text-gray-400 leading-relaxed">{item.description}</p>
+                    
+                    {/* Connecting line (except for last item) */}
+                    {index < 2 && (
+                      <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-px bg-gradient-to-r from-red-500/50 to-transparent"></div>
+                    )}
+                  </motion.div>
+                ))}
               </div>
             </div>
-            </section>
-          <section className="py-12">
-            <Faq />
           </section>
-          <section className="py-12">
-            <Testimonials />
+
+          <section className="py-20 px-4">
+            <div className="max-w-6xl mx-auto">
+              <Faq />
+            </div>
+          </section>
+
+          <section className="py-20 px-4">
+            <div className="max-w-6xl mx-auto">
+              <Testimonials />
+            </div>
           </section>
         </div>
+
+        <Footer />
       </div>
-      <Footer />
     </Provider>
   );
 }

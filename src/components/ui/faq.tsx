@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { FadeIn } from "../animation/fade-in";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -44,62 +44,89 @@ export function Faq() {
   ];
 
   return (
-    <section id="faq" className="py-16 border-t border-gray-800">
-      <FadeIn direction="up" delay={0.2}>
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Everything you need to know about our AI movie recommendation
-            generator
-          </p>
-        </div>
-      </FadeIn>
+    <section id="faq" className="relative py-20">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-0 w-72 h-72 bg-red-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
+      </div>
 
-      <div className="max-w-3xl mx-auto">
-        {faqs.map((faq, index) => (
-          <motion.div
-            key={index}
-            className="border-b border-gray-700 last:border-b-0"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <motion.button
-              className="flex justify-between items-center w-full py-5 text-left"
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-              whileTap={{ scale: 0.99 }}
+      <div className="relative z-10 max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4" />
+            FAQ
+          </div>
+          
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+              Frequently Asked
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+              Questions
+            </span>
+          </h2>
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Everything you need to know about our AI movie recommendation generator
+          </p>
+        </motion.div>
+
+        <div className="space-y-2">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={index}
+              className="bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800/50 hover:border-gray-700/50 rounded-2xl backdrop-blur-sm transition-all duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              viewport={{ once: true }}
             >
-              <h3 className="text-lg font-semibold">{faq.question}</h3>
-              <motion.div
-                animate={{ rotate: openIndex === index ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
+              <motion.button
+                className="flex justify-between items-center w-full p-6 text-left group"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}
+                whileTap={{ scale: 0.99 }}
               >
-                {openIndex === index ? (
-                  <ChevronUp className="h-5 w-5 text-purple-400" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
-                )}
-              </motion.div>
-            </motion.button>
-            <AnimatePresence>
-              {openIndex === index && (
+                <h3 className="text-lg font-semibold text-white group-hover:text-gray-100 transition-colors duration-200 pr-4">
+                  {faq.question}
+                </h3>
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
+                  className="flex-shrink-0"
                 >
-                  <p className="text-gray-300 pb-5">{faq.answer}</p>
+                  {openIndex === index ? (
+                    <ChevronUp className="h-5 w-5 text-red-400" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-red-400 transition-colors duration-200" />
+                  )}
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ))}
+              </motion.button>
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="text-gray-300 px-6 pb-6 leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

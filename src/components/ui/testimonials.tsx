@@ -1,5 +1,6 @@
-import { Star } from "lucide-react";
+import { Star, Sparkles } from "lucide-react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 export function Testimonials() {
   const testimonials = [
@@ -27,53 +28,91 @@ export function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" className="py-16 border-t border-gray-800">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          What Our Users Say
-        </h2>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Join thousands of satisfied users who have discovered their new
-          favorite movies with our AI recommendation engine
-        </p>
+    <section id="testimonials" className="relative py-20">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-red-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {testimonials.map((testimonial, index) => (
-          <div
-            key={index}
-            className="bg-gray-800/30 border border-gray-700 rounded-xl p-6 hover:border-purple-500 transition-all duration-300"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                <img
-                  src={`https://ui-avatars.com/api/?background=random&name=${testimonial.name}`} // Change this to a real image URL
-                  alt={testimonial.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="font-semibold">{testimonial.name}</h3>
-                <p className="text-sm text-gray-400">{testimonial.role}</p>
-              </div>
-            </div>
-
-            <div className="flex mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < testimonial.rating
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-600"
-                  }`}
-                />
-              ))}
-            </div>
-
-            <p className="text-gray-300 italic">"{testimonial.quote}"</p>
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4" />
+            Testimonials
           </div>
-        ))}
+          
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+              What Our Users
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-400 bg-clip-text text-transparent">
+              Say About Us
+            </span>
+          </h2>
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of satisfied users who have discovered their new favorite movies with our AI recommendation engine
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group p-8 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-800/50 hover:border-gray-700/50 rounded-2xl backdrop-blur-sm transition-all duration-300"
+            >
+              {/* Rating Stars */}
+              <div className="flex mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < testimonial.rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-600"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Quote */}
+              <blockquote className="text-gray-300 group-hover:text-gray-200 italic leading-relaxed mb-6 text-lg transition-colors duration-300">
+                "{testimonial.quote}"
+              </blockquote>
+
+              {/* User Info */}
+              <div className="flex items-center gap-4">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-700 group-hover:border-red-500/50 transition-all duration-300">
+                  <img
+                    src={`https://ui-avatars.com/api/?background=dc2626&color=fff&name=${testimonial.name}&bold=true`}
+                    alt={testimonial.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white group-hover:text-gray-100 transition-colors duration-300">
+                    {testimonial.name}
+                  </h3>
+                  <p className="text-sm text-gray-400 group-hover:text-red-400 transition-colors duration-300">
+                    {testimonial.role}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

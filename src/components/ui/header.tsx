@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Sparkles, Star, Info } from "lucide-react";
+import { Film, Menu, X, Search, BookOpen, Home } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { href: "/", label: "Home", icon: <Star className="w-4 h-4 mr-1" /> },
-  { href: "/docs", label: "Docs", icon: <Info className="w-4 h-4 mr-1" /> },
+  { href: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
+  { href: "/docs", label: "API Docs", icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 export function Header() {
@@ -16,115 +17,153 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-gray-900 to-purple-950 border-b border-purple-800 shadow-lg">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800/50">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        {/* Logo - High Contrast */}
         <Link
           href="/"
-          className="flex items-center gap-2 group"
-          aria-label="Screenpick Home"
+          className="flex items-center gap-3 group"
+          aria-label="Movie Recommender Home"
         >
-          <span className="relative flex items-center">
-            <Film className="h-7 w-7 text-purple-500 group-hover:rotate-12 transition-transform duration-300" />
-            <span className="absolute -top-2 -right-2 animate-pulse">
-              <Sparkles className="h-4 w-4 text-yellow-400" />
+          <motion.div
+            whileHover={{ rotate: 12 }}
+            transition={{ duration: 0.3 }}
+            className="p-2 bg-red-500/20 rounded-xl border border-red-500/30"
+          >
+            <Film className="h-6 w-6 text-red-400" />
+          </motion.div>
+          <div className="flex flex-col">
+            <span className="font-bold text-xl text-white tracking-tight">
+              MovieAI
             </span>
-          </span>
-          <span className="font-extrabold text-2xl bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 bg-clip-text text-transparent tracking-tight drop-shadow">
-            Screenpick
-          </span>
+            <span className="text-xs text-gray-400 -mt-1">
+              AI-Powered Discovery
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-gray-200 font-medium" role="navigation" aria-label="Main navigation">
+        {/* Desktop Navigation - Minimal Chrome */}
+        <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center px-3 py-1 rounded-full transition-all duration-200 hover:bg-purple-800/30 hover:text-purple-300 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium ${
                 pathname === link.href
-                  ? "bg-purple-700/40 text-purple-300 font-bold shadow"
-                  : ""
+                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800/50"
               }`}
             >
               {link.icon}
               {link.label}
             </Link>
           ))}
+          
+          {/* Primary CTA - Accent Red */}
           <Button
             asChild
-            variant="default"
-            className="ml-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg px-6 py-2 rounded-full font-semibold"
+            className="ml-6 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
           >
             <a
               href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Get Started
+              Get API Access
             </a>
           </Button>
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden text-purple-300 p-2 rounded-full hover:bg-purple-800/30 transition"
+        {/* Mobile Menu Button - Touch Friendly */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          className="md:hidden p-3 text-gray-300 hover:text-white rounded-xl hover:bg-gray-800/50 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setIsMenuOpen((open) => !open)}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
-        </button>
+          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </motion.button>
 
-        {/* Mobile navigation */}
-        {isMenuOpen && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col z-50 md:hidden animate-fade-in">
-            <div className="flex justify-between items-center px-6 py-4 border-b border-purple-800">
-              <Link
-                href="/"
-                className="flex items-center gap-2"
-                aria-label="Screenpick Home"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Film className="h-6 w-6 text-purple-500" />
-                <span className="font-bold text-xl text-gray-200">Screenpick</span>
-              </Link>
-              <button
-                className="text-purple-300 p-2 rounded-full hover:bg-purple-800/30 transition"
-                aria-label="Close menu"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <X className="h-7 w-7" />
-              </button>
-            </div>
-            <nav className="flex flex-col gap-2 px-8 py-8 text-lg font-semibold">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-purple-800/40 transition-all"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.icon}
-                  {link.label}
-                </Link>
-              ))}
-              <Button
-                asChild
-                variant="default"
-                className="mt-6 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg px-6 py-2 rounded-full font-semibold"
-              >
-                <a
-                  href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Get Started
-                </a>
-              </Button>
-            </nav>
-          </div>
-        )}
+        {/* Mobile Navigation - Full Screen Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-gray-950/95 backdrop-blur-md z-50 md:hidden"
+            >
+              <div className="flex flex-col h-full">
+                {/* Mobile Header */}
+                <div className="flex justify-between items-center p-6 border-b border-gray-800">
+                  <Link
+                    href="/"
+                    className="flex items-center gap-3"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="p-2 bg-red-500/20 rounded-xl border border-red-500/30">
+                      <Film className="h-5 w-5 text-red-400" />
+                    </div>
+                    <span className="font-bold text-lg text-white">MovieAI</span>
+                  </Link>
+                  <button
+                    className="p-3 text-gray-300 hover:text-white rounded-xl hover:bg-gray-800/50 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                {/* Mobile Navigation Links */}
+                <nav className="flex-1 px-6 py-8 space-y-2">
+                  {navLinks.map((link, index) => (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        href={link.href}
+                        className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 text-lg font-medium min-h-[44px] ${
+                          pathname === link.href
+                            ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                            : "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {link.icon}
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: navLinks.length * 0.1 }}
+                    className="pt-6"
+                  >
+                    <Button
+                      asChild
+                      className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 min-h-[44px]"
+                    >
+                      <a
+                        href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Get API Access
+                      </a>
+                    </Button>
+                  </motion.div>
+                </nav>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

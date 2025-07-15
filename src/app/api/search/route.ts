@@ -11,6 +11,13 @@ let ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 export async function GET(req: NextRequest) {
+  // Add CORS headers for cross-origin requests
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
+  };
+
   const { searchParams } = new URL(req.url);
   const authHeader =
     req.headers.get("Authorization") ||
@@ -18,7 +25,7 @@ export async function GET(req: NextRequest) {
     req.headers.get("X-RapidAPI-Key");
 
   if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
   }
 
   const allowedToken = (await Redis.fromEnv().hget(authHeader, "token")) || "";
@@ -27,7 +34,7 @@ export async function GET(req: NextRequest) {
   // }
 
   if (authHeader !== allowedToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
   }
 
   if (authHeader == process.env.API_KEY_TEST) {
@@ -41,15 +48,27 @@ export async function GET(req: NextRequest) {
 
   const name = searchParams.get("q");
   if (!name) {
-    return NextResponse.json({ error: "No name provided" }, { status: 400 });
+    return NextResponse.json({ error: "No name provided" }, { status: 400, headers });
   }
   const input = sanitizeInput(name);
   const { success } = await ratelimit.limit("search");
   if (!success) {
-    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429, headers });
   }
   const result = await run(input);
-  return NextResponse.json(result);
+  return NextResponse.json(result, { headers });
+}
+
+// Add OPTIONS handler for preflight requests
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
+    },
+  });
 }
 function sanitizeInput(input: string): string {
   return input.replace(/[^a-zA-Z0-9 ]/g, "");
