@@ -1,2 +1,13 @@
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://Screenpick.fun/sitemap.xml
+
+# Block crawling of API endpoints
+Disallow: /api/
+
+# Allow important pages
+Allow: /about
+Allow: /docs
+Allow: /price

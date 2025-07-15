@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Head from "next/head";
 import { SeoSchema } from "@/components/ui/seo-scheme";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,11 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Movie Recommender: Find the Best Movie Recommendations",
+  metadataBase: new URL('https://Screenpick.fun'),
+  title: {
+    default: "Movie Recommender: Find the Best Movie Recommendations",
+    template: "%s | Screenpick - AI Movie Recommender"
+  },
   description:
     "Looking for a movie recommender? Our AI-powered movie recommendation engine provides personalized suggestions to help you discover movies you'll love.",
   keywords:
-    "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations, discover movies, movie discovery, movie suggestions AI, find your next movie, movie recommendation system, personalized movie suggestions, AI-powered movie recommendations",
+    "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations, discover movies, movie discovery, movie suggestions AI, find your next movie, movie recommendation system, personalized movie suggestions, AI-powered movie recommendations, best movies to watch, movie finder, film recommendations",
+  authors: [{ name: "Screenpick Team" }],
+  creator: "Screenpick",
+  publisher: "Screenpick",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -64,6 +76,7 @@ export const metadata: Metadata = {
   verification: {
     google: "aeZs0gNhABslw_UXbjBW8SSu8PALbQhO8cx9oaD92yE",
   },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -73,24 +86,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-3YKPKP74MD"
-        ></script>
-        <script>
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-3YKPKP74MD');
-          `}
-        </script>
-      </Head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <GoogleAnalytics />
         {children}
         <SeoSchema />
       </body>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Movie Recommender API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .config-section h3 {
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(238, 90, 36, 0.4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .test-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .endpoint-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .endpoint-card h4 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .endpoint-card p {
+            color: #ddd;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .results-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .results-section h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .result-item.error {
+            border-left-color: #ff6b6b;
+        }
+
+        .result-item.success {
+            border-left-color: #2ecc71;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-url {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #bbb;
+            word-break: break-all;
+        }
+
+        .result-data {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+        }
+
+        .status-success {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #666, #888);
+            margin-left: 10px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            input, select, button {
+                min-width: auto;
+            }
+            
+            .test-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Movie Recommender API Tester</h1>
+            <p>Test all your API endpoints with a beautiful interface</p>
+        </div>
+
+        <div class="config-section">
+            <h3>⚙️ Configuration</h3>
+            <div class="input-group">
+                <input type="text" id="baseUrl" placeholder="Base URL" value="http://localhost:3000/api">
+                <input type="text" id="apiKey" placeholder="API Key" value="">
+                <button onclick="saveConfig()">Save Config</button>
+                <button onclick="runAllTests()" id="runAllBtn">🚀 Run All Tests</button>
+                <button onclick="clearResults()" class="clear-btn">🗑️ Clear Results</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="endpoint-card">
+                <h4>/ping</h4>
+                <p>Test basic connectivity and API health</p>
+                <button onclick="testEndpoint('ping')">Test Ping</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/search</h4>
+                <p>AI-powered movie recommendations based on natural language queries</p>
+                <div class="input-group">
+                    <input type="text" id="searchQuery" placeholder="Search query" value="action movies with explosions">
+                    <button onclick="testSearch()">Test Search</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/top</h4>
+                <p>Get top movies by category (popular, top_rated, upcoming, now_playing)</p>
+                <div class="input-group">
+                    <select id="topCategory">
+                        <option value="popular">Popular</option>
+                        <option value="top_rated">Top Rated</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="now_playing">Now Playing</option>
+                    </select>
+                    <button onclick="testTop()">Test Top</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/genre</h4>
+                <p>Get movies by genre or list all available genres</p>
+                <div class="input-group">
+                    <select id="genreAction">
+                        <option value="list">List Genres</option>
+                        <option value="discover">Discover by Genre</option>
+                    </select>
+                    <input type="text" id="genreIds" placeholder="Genre IDs (e.g., 28,12)" value="28">
+                    <button onclick="testGenre()">Test Genre</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/details</h4>
+                <p>Get detailed information about a specific movie</p>
+                <div class="input-group">
+                    <input type="text" id="movieId" placeholder="Movie ID" value="550">
+                    <input type="text" id="appendToResponse" placeholder="Append (credits,videos,similar)" value="credits">
+                    <button onclick="testDetails()">Test Details</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/trending</h4>
+                <p>Get currently trending movies</p>
+                <div class="input-group">
+                    <select id="timeWindow">
+                        <option value="day">Today</option>
+                        <option value="week">This Week</option>
+                    </select>
+                    <button onclick="testTrending()">Test Trending</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h4>/getID</h4>
+                <p>Get movie ID by title search</p>
+                <div class="input-group">
+                    <input type="text" id="movieTitle" placeholder="Movie title" value="Fight Club">
+                    <button onclick="testGetID()">Test GetID</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h3>📊 Test Results</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        let config = {
+            baseUrl: 'http://localhost:3000/api',
+            apiKey: ''
+        };
+
+        function saveConfig() {
+            config.baseUrl = document.getElementById('baseUrl').value;
+            config.apiKey = document.getElementById('apiKey').value;
+            
+            if (!config.apiKey) {
+                alert('Please enter your API key!');
+                return;
+            }
+            
+            localStorage.setItem('apiConfig', JSON.stringify(config));
+            addResult('Config saved successfully!', null, null, 'success');
+        }
+
+        function loadConfig() {
+            const saved = localStorage.getItem('apiConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('baseUrl').value = config.baseUrl;
+                document.getElementById('apiKey').value = config.apiKey;
+            }
+        }
+
+        async function makeRequest(endpoint, params = {}) {
+            if (!config.apiKey) {
+                throw new Error('API key not configured. Please save your configuration first.');
+            }
+
+            const url = new URL(`${config.baseUrl}${endpoint}`);
+            params.apiKey = config.apiKey;
+            
+            Object.keys(params).forEach(key => {
+                if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+                    url.searchParams.append(key, params[key]);
+                }
+            });
+
+            const startTime = Date.now();
+            const response = await fetch(url.toString());
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            
+            const data = await response.json();
+            
+            return {
+                success: response.ok,
+                status: response.status,
+                data,
+                responseTime,
+                url: url.toString()
+            };
+        }
+
+        function addResult(title, result, error, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result-item ${type}`;
+            
+            const statusClass = type === 'success' ? 'status-success' : type === 'error' ? 'status-error' : '';
+            const statusIcon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            
+            let content = `
+                <div class="result-header">
+                    <strong>${statusIcon} ${title}</strong>
+                    ${result ? `<span class="${statusClass}">${result.status} (${result.responseTime}ms)</span>` : ''}
+                </div>
+            `;
+            
+            if (result?.url) {
+                content += `<div class="result-url">${result.url}</div>`;
+            }
+            
+            if (error) {
+                content += `<div style="color: #ff6b6b; margin-top: 10px;">${error}</div>`;
+            } else if (result?.data) {
+                const preview = generatePreview(result.data);
+                content += `<div class="result-data">${preview}</div>`;
+            }
+            
+            resultDiv.innerHTML = content;
+            resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
+        }
+
+        function generatePreview(data) {
+            if (data.results && Array.isArray(data.results)) {
+                return `Found ${data.results.length} results:\n${data.results.slice(0, 3).map(item => `• ${item.title || item.name || 'No title'}`).join('\n')}${data.results.length > 3 ? '\n...' : ''}`;
+            } else if (data.genres && Array.isArray(data.genres)) {
+                return `Found ${data.genres.length} genres:\n${data.genres.slice(0, 5).map(g => `• ${g.name} (${g.id})`).join('\n')}${data.genres.length > 5 ? '\n...' : ''}`;
+            } else if (data.movies && Array.isArray(data.movies)) {
+                return `Found ${data.movies.length} recommendations:\n${data.movies.slice(0, 3).map(m => `• ${m.title || 'No title'}`).join('\n')}${data.movies.length > 3 ? '\n...' : ''}`;
+            } else if (data.title) {
+                return `Movie: ${data.title}\nRelease: ${data.release_date}\nRating: ${data.vote_average}/10`;
+            } else {
+                return JSON.stringify(data, null, 2);
+            }
+        }
+
+        async function testEndpoint(endpoint, params = {}) {
+            try {
+                const result = await makeRequest(`/${endpoint}`, params);
+                if (result.success) {
+                    addResult(`${endpoint.toUpperCase()} endpoint`, result, null, 'success');
+                } else {
+                    addResult(`${endpoint.toUpperCase()} endpoint`, result, result.data.error, 'error');
+                }
+                return result;
+            } catch (error) {
+                addResult(`${endpoint.toUpperCase()} endpoint`, null, error.message, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testSearch() {
+            const query = document.getElementById('searchQuery').value;
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+            await testEndpoint('search', { q: query });
+        }
+
+        async function testTop() {
+            const category = document.getElementById('topCategory').value;
+            await testEndpoint('top', { category, page: 1 });
+        }
+
+        async function testGenre() {
+            const action = document.getElementById('genreAction').value;
+            const genreIds = document.getElementById('genreIds').value;
+            
+            const params = {};
+            if (action === 'list') {
+                params.action = 'list';
+            } else {
+                if (!genreIds) {
+                    alert('Please enter genre IDs for discovery');
+                    return;
+                }
+                params.with_genres = genreIds;
+                params.sort_by = 'popularity.desc';
+            }
+            
+            await testEndpoint('genre', params);
+        }
+
+        async function testDetails() {
+            const movieId = document.getElementById('movieId').value;
+            const append = document.getElementById('appendToResponse').value;
+            
+            if (!movieId) {
+                alert('Please enter a movie ID');
+                return;
+            }
+            
+            const params = { id: movieId };
+            if (append) params.append_to_response = append;
+            
+            await testEndpoint('details', params);
+        }
+
+        async function testTrending() {
+            const timeWindow = document.getElementById('timeWindow').value;
+            await testEndpoint('trending', { time_window: timeWindow, page: 1 });
+        }
+
+        async function testGetID() {
+            const title = document.getElementById('movieTitle').value;
+            if (!title) {
+                alert('Please enter a movie title');
+                return;
+            }
+            await testEndpoint('getID', { title });
+        }
+
+        async function runAllTests() {
+            const btn = document.getElementById('runAllBtn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Running Tests...';
+            document.body.classList.add('loading');
+            
+            try {
+                addResult('Starting comprehensive API test suite...', null, null, 'info');
+                
+                // Test all endpoints with a delay between requests
+                await testEndpoint('ping');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testSearch();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testTop();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testGenre();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testDetails();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testTrending();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await testGetID();
+                
+                addResult('✅ All tests completed!', null, null, 'success');
+            } catch (error) {
+                addResult('Test suite error', null, error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Run All Tests';
+                document.body.classList.remove('loading');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Load saved configuration on page load
+        window.addEventListener('load', loadConfig);
+    </script>
+</body>
+</html>

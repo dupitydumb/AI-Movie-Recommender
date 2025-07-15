@@ -180,12 +180,23 @@ const generationConfig = {
 async function run(input: string) {
   try {
     movies = [];
+    
+    // First, search TMDB directly for movies matching the input
+    const tmdbResults = await searchTMDB(input);
+    
+    if (tmdbResults.length > 0) {
+      // If we found direct matches, return them (limit to top 20 results)
+      movies = tmdbResults.slice(0, 20);
+      return { movies };
+    }
+    
+    // If no direct matches, fall back to AI recommendations
     const chatSession = model.startChat({
       generationConfig,
       history: [],
     });
 
-    const result = await chatSession.sendMessage(input);
+    const result = await chatSession.sendMessage(`Find movies similar to or related to: ${input}`);
     const json = parseJsonWithBackticks(result.response.text());
     await Promise.all(
       json.recommendations.map(async (movie: any) => {
@@ -205,6 +216,38 @@ function parseJsonWithBackticks(input: string) {
     .trim(); // Trim whitespace
 
   return JSON.parse(cleanedJson);
+}
+
+async function searchTMDB(query: string) {
+  const apikey = process.env.TMDB;
+  const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${apikey}`,
+    }
+  };
+  
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    
+    // Filter out movies without proper data and sort by popularity
+    const validMovies = (data.results || [])
+      .filter((movie: any) => 
+        movie.title && 
+        movie.id && 
+        movie.release_date && 
+        movie.poster_path
+      )
+      .sort((a: any, b: any) => b.popularity - a.popularity);
+    
+    return validMovies;
+  } catch (error) {
+    console.error('Error searching TMDB:', error);
+    return [];
+  }
 }
 
 async function getMovieDetails(movieName: string) {
