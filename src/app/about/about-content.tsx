@@ -4,6 +4,7 @@ import React from "react";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { WhyChooseUs } from "@/components/ui/why-choose-us";
+import { Breadcrumb, BreadcrumbStructuredData } from "@/components/ui/breadcrumb";
 import { motion } from "framer-motion";
 import { Users, Heart, Brain, Sparkles, Film, Target, Star, Clock, Zap } from "lucide-react";
 import { FadeIn } from "@/components/animation/fade-in";
@@ -56,6 +57,11 @@ const stats = [
 ];
 
 export default function AboutContent() {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'About', href: '/about', isCurrentPage: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
       {/* Background Effects */}
@@ -68,8 +74,21 @@ export default function AboutContent() {
       <div className="relative z-10">
         <Header />
         
+        {/* Breadcrumb Navigation */}
+        <section className="relative pt-8 pb-4 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Breadcrumb items={breadcrumbItems} />
+            </motion.div>
+          </div>
+        </section>
+        
         {/* Hero Section */}
-        <section className="relative z-10 pt-20 pb-16 px-4">
+        <section className="relative z-10 pt-12 pb-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -250,6 +269,9 @@ export default function AboutContent() {
         </section>
 
         <Footer />
+        
+        {/* Structured Data for Breadcrumbs */}
+        <BreadcrumbStructuredData items={breadcrumbItems} />
       </div>
     </div>
   );

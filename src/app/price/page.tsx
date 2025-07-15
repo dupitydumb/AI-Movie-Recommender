@@ -3,6 +3,7 @@
 import React from "react";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
+import { Breadcrumb, BreadcrumbStructuredData } from "@/components/ui/breadcrumb";
 import { Check, Star, Zap, Crown } from "lucide-react";
 import { FadeIn } from "@/components/animation/fade-in";
 import { ScaleIn } from "@/components/animation/scale-in";
@@ -10,6 +11,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 const PricePage: React.FC = () => {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Pricing', href: '/price', isCurrentPage: true }
+  ];
+
   const plans = [
     {
       name: "Starter",
@@ -77,8 +83,21 @@ const PricePage: React.FC = () => {
       <div className="relative z-10">
         <Header />
         
+        {/* Breadcrumb Navigation */}
+        <section className="relative pt-8 pb-4 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Breadcrumb items={breadcrumbItems} />
+            </motion.div>
+          </div>
+        </section>
+        
         {/* Hero Section */}
-        <section className="pt-20 pb-16 px-4">
+        <section className="pt-12 pb-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
             <FadeIn>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-red-200 to-white bg-clip-text text-transparent">
@@ -205,6 +224,9 @@ const PricePage: React.FC = () => {
         </section>
 
         <Footer />
+        
+        {/* Structured Data for Breadcrumbs */}
+        <BreadcrumbStructuredData items={breadcrumbItems} />
       </div>
     </div>
   );

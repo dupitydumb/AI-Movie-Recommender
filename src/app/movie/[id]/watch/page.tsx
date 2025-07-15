@@ -6,6 +6,7 @@ import { Header } from "@/components/ui/header"
 import { Footer } from "@/components/ui/footer"
 import { WatchOptions } from "@/components/ui/watch-options"
 import { MovieDetails } from "@/components/ui/movie-details"
+import { Breadcrumb, BreadcrumbStructuredData } from "@/components/ui/breadcrumb"
 import { motion } from "framer-motion"
 import { ArrowLeft, Film, Clock } from "lucide-react"
 import { SimilarMovies } from "@/app/components/similar-movies";
@@ -22,6 +23,13 @@ export default function WatchMoviePage() {
   const [watchProviders, setWatchProviders] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Breadcrumb items for structured data
+  const breadcrumbItems = movie ? [
+    { label: 'Home', href: '/' },
+    { label: 'Movies', href: '/movie' },
+    { label: movie.title, href: `/movie/${movieId}/watch`, isCurrentPage: true }
+  ] : [];
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -252,20 +260,13 @@ export default function WatchMoviePage() {
         {/* Breadcrumb Navigation */}
         <section className="relative pt-8 pb-4 px-4">
           <div className="max-w-7xl mx-auto">
-            <motion.nav 
-              className="flex items-center space-x-3 text-sm"
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Link href="/" className="text-gray-400 hover:text-red-400 transition-colors font-medium">
-                Home
-              </Link>
-              <span className="text-gray-600">•</span>
-              <span className="text-gray-500 font-medium">Movie</span>
-              <span className="text-gray-600">•</span>
-              <span className="text-white font-medium truncate max-w-xs">{movie.title}</span>
-            </motion.nav>
+              <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            </motion.div>
           </div>
         </section>
 
@@ -312,6 +313,9 @@ export default function WatchMoviePage() {
         </main>
         
         <Footer />
+        
+        {/* Structured Data for Breadcrumbs */}
+        {breadcrumbItems.length > 0 && <BreadcrumbStructuredData items={breadcrumbItems} />}
       </div>
     </div>
   )

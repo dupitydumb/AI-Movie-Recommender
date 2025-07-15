@@ -5,6 +5,7 @@ import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { WhyChooseUs } from "@/components/ui/why-choose-us";
 import { ApiDocumentation } from "@/components/ui/api-documentation";
+import { Breadcrumb, BreadcrumbStructuredData } from "@/components/ui/breadcrumb";
 import { Book, ArrowRight, Zap, Shield, Code2, Globe, Cpu, Database } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -42,6 +43,11 @@ const apiFeatures = [
 ];
 
 export default function DocsContent() {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Documentation', href: '/docs', isCurrentPage: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
       {/* Background Effects */}
@@ -54,8 +60,21 @@ export default function DocsContent() {
       <div className="relative z-10">
         <Header />
         
+        {/* Breadcrumb Navigation */}
+        <section className="relative pt-8 pb-4 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Breadcrumb items={breadcrumbItems} />
+            </motion.div>
+          </div>
+        </section>
+        
         {/* Hero Section */}
-        <section className="relative z-10 pt-20 pb-16 px-4">
+        <section className="relative z-10 pt-12 pb-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -124,6 +143,9 @@ export default function DocsContent() {
         </section>
         
         <Footer />
+        
+        {/* Structured Data for Breadcrumbs */}
+        <BreadcrumbStructuredData items={breadcrumbItems} />
       </div>
     </div>
   );
