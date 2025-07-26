@@ -180,31 +180,33 @@ const generationConfig = {
 async function run(input: string) {
   try {
     movies = [];
-    
     // First, search TMDB directly for movies matching the input
     const tmdbResults = await searchTMDB(input);
-    
     if (tmdbResults.length > 0) {
       // If we found direct matches, return them (limit to top 20 results)
       movies = tmdbResults.slice(0, 20);
       return { movies };
     }
-    
     // If no direct matches, fall back to AI recommendations
     const chatSession = model.startChat({
       generationConfig,
       history: [],
     });
-
     const result = await chatSession.sendMessage(`Find movies similar to or related to: ${input}`);
-    const json = parseJsonWithBackticks(result.response.text());
+    let json;
+    try {
+      json = parseJsonWithBackticks(result.response.text());
+    } catch (error) {
+      return { error: "Invalid JSON response from AI", code: 502 };
+    }
     await Promise.all(
-      json.recommendations.map(async (movie: any) => {
+      (json.recommendations || []).map(async (movie: any) => {
         await getMovieDetails(movie.title);
       })
     );
-  } finally {
     return { movies };
+  } catch (error: any) {
+    return { error: "Internal server error", code: 500 };
   }
 }
 
@@ -214,8 +216,11 @@ function parseJsonWithBackticks(input: string) {
     .replace(/^```(json)?\s*/gm, "") // Remove opening ``` and "json"
     .replace(/\s*```$/gm, "") // Remove closing ```
     .trim(); // Trim whitespace
-
-  return JSON.parse(cleanedJson);
+  try {
+    return JSON.parse(cleanedJson);
+  } catch (error) {
+    throw new Error("INVALID_JSON");
+  }
 }
 
 async function searchTMDB(query: string) {

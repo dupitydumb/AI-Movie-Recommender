@@ -34,7 +34,7 @@ export function Header() {
           </motion.div>
           <div className="flex flex-col">
             <span className="font-bold text-xl text-white tracking-tight">
-              MovieAI
+              Screenpick
             </span>
             <span className="text-xs text-gray-400 -mt-1">
               AI-Powered Discovery
@@ -105,7 +105,7 @@ export function Header() {
                     <div className="p-2 bg-red-500/20 rounded-xl border border-red-500/30">
                       <Film className="h-5 w-5 text-red-400" />
                     </div>
-                    <span className="font-bold text-lg text-white">MovieAI</span>
+                    <span className="font-bold text-lg text-white">Screenpick</span>
                   </Link>
                   <button
                     className="p-3 text-gray-300 hover:text-white rounded-xl hover:bg-gray-800/50 transition-colors"

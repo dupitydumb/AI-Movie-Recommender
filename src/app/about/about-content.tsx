@@ -165,7 +165,7 @@ export default function AboutContent() {
               </h2>
               <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
                 <p>
-                  Welcome to MovieAI, where the magic of cinema meets the power of artificial intelligence. 
+                  Welcome to Screenpick, where the magic of cinema meets the power of artificial intelligence. 
                   We were born from a simple frustration: spending more time searching for movies than actually watching them.
                 </p>
                 <p>

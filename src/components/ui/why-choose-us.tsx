@@ -49,7 +49,7 @@ const defaultFeatures: Feature[] = [
 ];
 
 export function WhyChooseUs({
-  title = "Why Choose MovieAI",
+  title = "Why Choose Screenpick",
   subtitle = "Better Movie Recommendations",
   description = "Stop wasting time scrolling through endless lists. Our AI understands context, emotion, and personal taste to deliver recommendations that truly resonate with you.",
   features = defaultFeatures,

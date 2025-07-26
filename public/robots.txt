@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://Screenpick.fun/sitemap.xml
+Sitemap: https://screenpick.fun/sitemap.xml
 
 # Block crawling of API endpoints
 Disallow: /api/

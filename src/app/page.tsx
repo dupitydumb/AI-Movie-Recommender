@@ -31,6 +31,7 @@ import { SeoSchema } from "@/components/ui/seo-scheme";
 import * as React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import { Toaster, toaster } from "@/components/ui/toaster";
 import { Send, Search, Sparkles, Film } from "lucide-react";
 import { FadeIn } from "@/components/animation/fade-in";
 import { LoadingCard } from "@/components/ui/loading-card";
@@ -42,8 +43,6 @@ import ReactGA from "react-ga4";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
-import { AnimatedText } from "@/components/animation/animated-text";
-
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   let [movies, setMovies] = useState<any[]>([]);
@@ -56,6 +55,10 @@ export default function Home() {
   async function run(prompt: string) {
     if (!prompt || prompt.trim() === "") {
       setError("Please enter a valid movie prompt.");
+      toaster.create({
+        title: "Input Error",
+        description: "Please enter a valid movie prompt.",
+      });
       return;
     }
     if (isLoading) return;
@@ -70,11 +73,20 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.error) {
-          alert(data.error + "Token: " + process.env.API_KEY);
+        if (data.error || data.code) {
+          const errorMsg = data.error || "An error occurred.";
+          setError(errorMsg);
+          toaster.create({
+            title: "Error",
+            description: errorMsg,
+          });
         } else {
-          if (data.movies.length === 0) {
+          if (data.movies && data.movies.length === 0) {
             setError("Sorry, we couldn't get any movie recommendations.");
+            toaster.create({
+              title: "No Recommendations",
+              description: "Sorry, we couldn't get any movie recommendations.",
+            });
           } else {
             setMovies(data.movies);
           }
@@ -428,6 +440,8 @@ export default function Home() {
 
         <Footer />
       </div>
+      <Toaster />
     </Provider>
   );
 }
+
