@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { generatePageMetadata } from "@/lib/metadata";
-import PriceContent from "./price-content";
+
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Pricing Plans - AI Movie Recommendation API",
@@ -10,5 +10,5 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export default function Price() {
-  return <PriceContent />;
+  
 }
