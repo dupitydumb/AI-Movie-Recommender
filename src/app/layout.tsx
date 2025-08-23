@@ -4,6 +4,7 @@ import "./globals.css";
 import { SeoSchema } from "@/components/ui/seo-scheme";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { generatePageMetadata } from "@/lib/metadata";
+import { Provider } from "@/components/ui/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -94,7 +95,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <GoogleAnalytics />
-        {children}
+        <Provider>
+          {children}
+        </Provider>
         <SeoSchema />
       </body>
     </html>

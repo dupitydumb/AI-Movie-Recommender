@@ -1,6 +1,5 @@
 "use client";
 import dotenv from "dotenv";
-import { Provider } from "@/components/ui/provider";
 import {
   Box,
   Input,
@@ -117,7 +116,7 @@ export default function Home() {
   }, []);
 
   return (
-    <Provider>
+    <>
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
         {/* Skip Link for Accessibility */}
         <a href="#main-content" className="skip-link">
@@ -441,7 +440,7 @@ export default function Home() {
         <Footer />
       </div>
       <Toaster />
-    </Provider>
+    </>
   );
 }
 
