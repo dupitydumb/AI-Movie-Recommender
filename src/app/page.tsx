@@ -39,16 +39,24 @@ import { WhyChooseUs } from "@/components/ui/why-choose-us";
 import Head from "next/head";
 import Script from "next/script";
 import ReactGA from "react-ga4";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { UsageLimitBanner } from "@/components/ui/usage-limit-banner";
+import { PricingModal } from "@/components/pricing/PricingModal";
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   let [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { user } = useAuth();
+  const { usageStats, logUsage, refreshUsage } = useUsageLimit();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
   dotenv.config();
   ReactGA.initialize("G-3YKPKP74MD");
 
@@ -61,40 +69,71 @@ export default function Home() {
       });
       return;
     }
+
+    // Check usage limit before proceeding
+    if (usageStats && !usageStats.canMakeRequest) {
+      setError("Daily limit reached. Please upgrade or try again tomorrow.");
+      toaster.create({
+        title: "Usage Limit Reached",
+        description: user 
+          ? "You've reached your daily limit. Upgrade to premium for unlimited searches."
+          : "Daily limit reached. Sign up for more searches or try again tomorrow.",
+      });
+      if (!user) {
+        setAuthModalOpen(true);
+      } else {
+        setPricingModalOpen(true);
+      }
+      return;
+    }
+
     if (isLoading) return;
     setMovies([]);
     setIsLoading(true);
-    const promise = fetch("/api/search?q=" + prompt, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${process.env.API_KEY}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error || data.code) {
-          const errorMsg = data.error || "An error occurred.";
-          setError(errorMsg);
-          toaster.create({
-            title: "Error",
-            description: errorMsg,
-          });
-        } else {
-          if (data.movies && data.movies.length === 0) {
-            setError("Sorry, we couldn't get any movie recommendations.");
+    
+    try {
+      // Log usage before making the request
+      await logUsage();
+      
+      const promise = fetch("/api/search?q=" + prompt, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${process.env.API_KEY}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error || data.code) {
+            const errorMsg = data.error || "An error occurred.";
+            setError(errorMsg);
             toaster.create({
-              title: "No Recommendations",
-              description: "Sorry, we couldn't get any movie recommendations.",
+              title: "Error",
+              description: errorMsg,
             });
           } else {
-            setMovies(data.movies);
+            if (data.movies && data.movies.length === 0) {
+              setError("Sorry, we couldn't get any movie recommendations.");
+              toaster.create({
+                title: "No Recommendations",
+                description: "Sorry, we couldn't get any movie recommendations.",
+              });
+            } else {
+              setMovies(data.movies);
+              // Refresh usage stats after successful search
+              refreshUsage();
+            }
           }
-        }
-      });
-    setLoading(true);
-    await promise;
-    setIsLoading(false);
+        });
+      
+      setLoading(true);
+      await promise;
+    } catch (err) {
+      console.error("Error generating movie recommendations:", err);
+      setError("Sorry, we couldn't process your request. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,6 +208,18 @@ export default function Home() {
                 </p>
               </motion.div>
 
+              {/* Usage Limit Banner */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                <UsageLimitBanner 
+                  onSignIn={() => setAuthModalOpen(true)}
+                  onUpgrade={() => setPricingModalOpen(true)}
+                />
+              </motion.div>
+
               {/* Search Form */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -185,12 +236,12 @@ export default function Home() {
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="I want a sci-fi thriller with time travel..."
                         className="w-full pl-12 pr-4 py-4 bg-transparent border-none text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-0"
-                        disabled={isLoading}
+                        disabled={isLoading || (usageStats ? !usageStats.canMakeRequest : false)}
                       />
                     </div>
                     <Button
                       type="submit"
-                      disabled={isLoading || !prompt.trim()}
+                      disabled={isLoading || !prompt.trim() || (usageStats ? !usageStats.canMakeRequest : false)}
                       className="px-8 py-4 bg-red-500 hover:bg-red-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-w-[120px]"
                     >
                       {isLoading ? (
@@ -440,6 +491,19 @@ export default function Home() {
 
         <Footer />
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+
+      {/* Pricing Modal */}
+      <PricingModal 
+        isOpen={pricingModalOpen}
+        onClose={() => setPricingModalOpen(false)}
+      />
+      
       <Toaster />
     </Provider>
   );

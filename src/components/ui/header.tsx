@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Search, BookOpen, Home } from "lucide-react";
-import { useState } from "react";
+import { Film, Menu, X, Search, BookOpen, Home, User, LogOut, Crown, Settings } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const navLinks = [
   { href: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
@@ -14,7 +16,25 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [userMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800/50">
@@ -59,19 +79,77 @@ export function Header() {
             </Link>
           ))}
           
-          {/* Primary CTA - Accent Red */}
-          <Button
-            asChild
-            className="ml-6 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
-          >
-            <a
-              href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
-              target="_blank"
-              rel="noopener noreferrer"
+          {/* User Authentication */}
+          <div className="ml-6 flex items-center gap-3">
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 text-white transition-colors"
+                >
+                  <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="hidden sm:block">{user.email?.split('@')[0]}</span>
+                </button>
+
+                {/* User Dropdown Menu */}
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-lg z-50"
+                    >
+                      <div className="p-2">
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <User className="w-4 h-4" />
+                          Dashboard
+                        </Link>
+                        <button
+                          onClick={() => {
+                            signOut()
+                            setUserMenuOpen(false)
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setAuthModalOpen(true)}
+                className="bg-gray-800/50 hover:bg-gray-700/50 text-white border border-gray-600 px-4 py-2 rounded-xl transition-colors"
+              >
+                Sign In
+              </Button>
+            )}
+            
+            {/* Primary CTA */}
+            <Button
+              asChild
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
             >
-              Get API Access
-            </a>
-          </Button>
+              <a
+                href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get API Access
+              </a>
+            </Button>
+          </div>
         </nav>
 
         {/* Mobile Menu Button - Touch Friendly */}
@@ -139,10 +217,62 @@ export function Header() {
                     </motion.div>
                   ))}
                   
+                  {/* Mobile User Authentication */}
+                  {user ? (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: navLinks.length * 0.1 }}
+                      >
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 text-lg font-medium min-h-[44px] text-gray-300 hover:text-white hover:bg-gray-800/50"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <User className="w-4 h-4" />
+                          Dashboard
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (navLinks.length + 1) * 0.1 }}
+                      >
+                        <button
+                          onClick={() => {
+                            signOut()
+                            setIsMenuOpen(false)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 text-lg font-medium min-h-[44px] text-gray-300 hover:text-white hover:bg-gray-800/50"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </motion.div>
+                    </>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: navLinks.length * 0.1 }}
+                    >
+                      <Button
+                        onClick={() => {
+                          setAuthModalOpen(true)
+                          setIsMenuOpen(false)
+                        }}
+                        className="w-full bg-gray-800/50 hover:bg-gray-700/50 text-white border border-gray-600 py-4 rounded-xl transition-colors min-h-[44px]"
+                      >
+                        Sign In
+                      </Button>
+                    </motion.div>
+                  )}
+                  
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.length * 0.1 }}
+                    transition={{ delay: (navLinks.length + 2) * 0.1 }}
                     className="pt-6"
                   >
                     <Button
@@ -165,6 +295,12 @@ export function Header() {
           )}
         </AnimatePresence>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </header>
   );
 }
