@@ -67,39 +67,94 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutSessionCompleted(session: any) {
-  const userId = session.metadata?.user_id
+  console.log('Handling checkout session completed:', session.id)
   
-  if (userId) {
-    await supabase
+  // Get user ID from client_reference_id (set in pricing table)
+  const userId = session.client_reference_id
+  
+  if (!userId) {
+    console.error('No user ID found in checkout session')
+    return
+  }
+
+  try {
+    // Update user subscription status
+    const { error: userError } = await supabase
       .from('users')
       .update({
         subscription_type: 'premium',
         subscription_status: 'active',
+        stripe_customer_id: session.customer,
         stripe_subscription_id: session.subscription,
+        subscription_expires_at: session.subscription ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days for one-time payments
+        updated_at: new Date().toISOString()
       })
       .eq('id', userId)
+
+    if (userError) {
+      console.error('Error updating user subscription:', userError)
+      return
+    }
+
+    // Log the payment
+    if (session.amount_total) {
+      await supabase
+        .from('payments')
+        .insert({
+          user_id: userId,
+          stripe_payment_intent_id: session.payment_intent,
+          amount: session.amount_total,
+          currency: session.currency,
+          status: 'succeeded',
+        })
+    }
+
+    console.log(`Successfully activated premium subscription for user ${userId}`)
+  } catch (error) {
+    console.error('Error in handleCheckoutSessionCompleted:', error)
   }
 }
 
 async function handleSubscriptionUpdate(subscription: any) {
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('stripe_customer_id', subscription.customer)
-    .single()
+  console.log('Handling subscription update:', subscription.id)
+  
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', subscription.customer)
+      .single()
 
-  if (user) {
+    if (!user) {
+      console.error('No user found for customer:', subscription.customer)
+      return
+    }
+
     const subscriptionStatus = subscription.status
     const subscriptionType = subscriptionStatus === 'active' ? 'premium' : 'free'
+    const expiresAt = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : null
     
-    await supabase
+    const { error } = await supabase
       .from('users')
       .update({
         subscription_type: subscriptionType,
         subscription_status: subscriptionStatus,
-        subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
+        stripe_subscription_id: subscription.id,
+        subscription_expires_at: expiresAt,
+        updated_at: new Date().toISOString()
       })
       .eq('id', user.id)
+
+    if (error) {
+      console.error('Error updating subscription:', error)
+      return
+    }
+
+    console.log(`Updated subscription for user ${user.id}: ${subscriptionType} (${subscriptionStatus})`)
+  } catch (error) {
+    console.error('Error in handleSubscriptionUpdate:', error)
   }
 }
 

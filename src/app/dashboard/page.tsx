@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUsageLimit } from '@/hooks/useUsageLimit'
-import { Crown, BarChart, CreditCard, Settings } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { Crown, BarChart, CreditCard, Settings, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { PricingModal } from '@/components/pricing/PricingModal'
 import { createSupabaseClient } from '@/lib/supabase'
 import Link from 'next/link'
@@ -10,6 +11,7 @@ import Link from 'next/link'
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
   const { usageStats, loading: usageLoading } = useUsageLimit()
+  const subscription = useSubscription()
   const [userProfile, setUserProfile] = useState<any>(null)
   const [pricingModalOpen, setPricingModalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -71,7 +73,26 @@ export default function Dashboard() {
     )
   }
 
-  const isPremium = userProfile?.subscription_type === 'premium'
+  const getSubscriptionStatusIcon = () => {
+    if (subscription.loading) return <Clock className="w-5 h-5 text-gray-400" />
+    if (subscription.isPremium) return <CheckCircle className="w-5 h-5 text-green-400" />
+    return <XCircle className="w-5 h-5 text-red-400" />
+  }
+
+  const getSubscriptionStatusText = () => {
+    if (subscription.loading) return 'Loading...'
+    if (subscription.isPremium) return 'Active'
+    if (subscription.subscriptionStatus === 'canceled') return 'Canceled'
+    if (subscription.subscriptionStatus === 'past_due') return 'Past Due'
+    return 'Inactive'
+  }
+
+  const getSubscriptionStatusColor = () => {
+    if (subscription.loading) return 'bg-gray-700 text-gray-300'
+    if (subscription.isPremium) return 'bg-green-500/20 text-green-400'
+    if (subscription.subscriptionStatus === 'past_due') return 'bg-yellow-500/20 text-yellow-400'
+    return 'bg-red-500/20 text-red-400'
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
@@ -88,34 +109,41 @@ export default function Dashboard() {
             <div className="flex justify-between items-start">
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <Crown className={`w-6 h-6 ${isPremium ? 'text-yellow-400' : 'text-gray-400'}`} />
+                  <Crown className={`w-6 h-6 ${subscription.isPremium ? 'text-yellow-400' : 'text-gray-400'}`} />
                   <h2 className="text-xl font-semibold">
-                    {isPremium ? 'Premium Plan' : 'Free Plan'}
+                    {subscription.isPremium ? 'Premium Plan' : 'Free Plan'}
                   </h2>
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    isPremium ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-300'
-                  }`}>
-                    {userProfile?.subscription_status || 'inactive'}
-                  </span>
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${getSubscriptionStatusColor()}`}>
+                    {getSubscriptionStatusIcon()}
+                    {getSubscriptionStatusText()}
+                  </div>
                 </div>
                 
                 <p className="text-gray-300">
-                  {isPremium ? (
+                  {subscription.isPremium ? (
                     'You have unlimited access to all premium features'
                   ) : (
                     'Upgrade to premium for unlimited searches and advanced features'
                   )}
                 </p>
 
-                {isPremium && userProfile?.subscription_expires_at && (
+                {subscription.isPremium && subscription.subscriptionExpiresAt && (
                   <p className="text-sm text-gray-400">
-                    Next billing: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                    Next billing: {new Date(subscription.subscriptionExpiresAt).toLocaleDateString()}
                   </p>
+                )}
+
+                {subscription.isExpired && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    <p className="text-red-400 text-sm">
+                      Your subscription has expired. Please renew to continue using premium features.
+                    </p>
+                  </div>
                 )}
               </div>
 
               <div className="flex space-x-2">
-                {isPremium ? (
+                {subscription.isPremium ? (
                   <button
                     onClick={handleManageSubscription}
                     disabled={loading}

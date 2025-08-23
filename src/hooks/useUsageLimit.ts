@@ -30,15 +30,26 @@ export function useUsageLimit() {
   const getUserType = async (): Promise<'guest' | 'free' | 'premium'> => {
     if (!user) return 'guest'
     
-    // Check user subscription from database
+    // Check user subscription from database with real-time status
     const { data: userData } = await supabase
       .from('users')
-      .select('subscription_type, subscription_status')
+      .select('subscription_type, subscription_status, subscription_expires_at')
       .eq('id', user.id)
       .single()
     
-    if (userData?.subscription_type === 'premium' && userData?.subscription_status === 'active') {
-      return 'premium'
+    if (userData?.subscription_type === 'premium' && 
+        userData?.subscription_status === 'active') {
+      
+      // Check if subscription is not expired
+      if (userData.subscription_expires_at) {
+        const expiresAt = new Date(userData.subscription_expires_at)
+        if (expiresAt > new Date()) {
+          return 'premium'
+        }
+      } else {
+        // No expiration date means it's active
+        return 'premium'
+      }
     }
     
     return 'free' // Default for authenticated users

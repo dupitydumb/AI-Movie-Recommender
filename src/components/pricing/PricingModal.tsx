@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { X, Crown } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface PricingModalProps {
   isOpen: boolean
@@ -8,6 +9,7 @@ interface PricingModalProps {
 }
 
 export function PricingModal({ isOpen, onClose }: PricingModalProps) {
+  const { user } = useAuth()
   const pricingTableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -22,16 +24,20 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
   useEffect(() => {
     // Create pricing table element when modal opens
-    if (isOpen && pricingTableRef.current) {
+    if (isOpen && pricingTableRef.current && user) {
       const pricingTable = document.createElement('stripe-pricing-table')
       pricingTable.setAttribute('pricing-table-id', process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID || "prctbl_1RzHo584fHm6r9gn7cvZSrIq")
       pricingTable.setAttribute('publishable-key', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_51RzGsQ84fHm6r9gn2lQSEcVhv8HtbaqNVPFLQQ47Sul7vI33ujFw7ByiYlqj3j3PwT6dBgDD2FhqEnAM6Z9BbG93005Ult3vTU")
+      
+      // Add user metadata for webhook handling
+      pricingTable.setAttribute('client-reference-id', user.id)
+      pricingTable.setAttribute('customer-email', user.email || '')
       
       // Clear previous content and add pricing table
       pricingTableRef.current.innerHTML = ''
       pricingTableRef.current.appendChild(pricingTable)
     }
-  }, [isOpen])
+  }, [isOpen, user])
 
   if (!isOpen) return null
 
