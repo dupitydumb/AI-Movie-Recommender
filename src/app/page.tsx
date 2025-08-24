@@ -27,6 +27,9 @@ import { Features } from "@/components/ui/features";
 import { Faq } from "../components/ui/faq";
 import { Testimonials } from "@/components/ui/testimonials";
 import { SeoSchema } from "@/components/ui/seo-scheme";
+import { UsageLimitDisplay } from "@/components/ui/usage-limit-display";
+import { PersistentUsageBar } from "@/components/ui/persistent-usage-bar";
+import { AuthProvider } from "@/context/AuthContext";
 import * as React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -63,37 +66,84 @@ export default function Home() {
     if (isLoading) return;
     setMovies([]);
     setIsLoading(true);
-    const promise = fetch("/api/search?q=" + prompt, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${process.env.API_KEY}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error || data.code) {
+    setError("");
+    
+    try {
+      const response = await fetch("/api/search-movies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: prompt.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 429 && data.usage_limit_exceeded) {
+          // Usage limit exceeded - dispatch event to update UI
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('usage-updated', { 
+              detail: {
+                usage_count: data.is_free_tier ? 3 : 100,
+                usage_limit: data.is_free_tier ? 3 : 100,
+                remaining_requests: 0,
+                is_free_tier: data.is_free_tier
+              }
+            }));
+          }
+          
+          setError(
+            data.is_free_tier 
+              ? "You've reached your daily limit of 3 free recommendations. Sign up and get 100 more for just $10!"
+              : "You've used all your Pro plan recommendations. Purchase another Pro plan to continue."
+          );
+          toaster.create({
+            title: "Usage Limit Reached",
+            description: data.error,
+          });
+        } else {
           const errorMsg = data.error || "An error occurred.";
           setError(errorMsg);
           toaster.create({
             title: "Error",
             description: errorMsg,
           });
-        } else {
-          if (data.movies && data.movies.length === 0) {
-            setError("Sorry, we couldn't get any movie recommendations.");
-            toaster.create({
-              title: "No Recommendations",
-              description: "Sorry, we couldn't get any movie recommendations.",
-            });
-          } else {
-            setMovies(data.movies);
+        }
+        return;
+      }
+
+      if (data.movies && data.movies.length === 0) {
+        setError("Sorry, we couldn't get any movie recommendations.");
+        toaster.create({
+          title: "No Recommendations",
+          description: "Sorry, we couldn't get any movie recommendations.",
+        });
+      } else {
+        setMovies(data.movies || []);
+        if (data.usage_info) {
+          // Success message with usage info
+          toaster.create({
+            title: "Recommendations Found!",
+            description: `Found ${data.movies?.length || 0} movies. You have ${data.usage_info.remaining_requests} requests remaining.`,
+          });
+          // Broadcast usage update so the UsageLimitDisplay can refresh without another RPC call
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('usage-updated', { detail: data.usage_info }));
           }
         }
+      }
+    } catch (err) {
+      console.error("Error generating movie recommendations:", err);
+      setError("Sorry, we couldn't process your request. Please try again.");
+      toaster.create({
+        title: "Network Error",
+        description: "Sorry, we couldn't process your request. Please try again.",
       });
-    setLoading(true);
-    await promise;
-    setIsLoading(false);
+    } finally {
+      setLoading(false);
+      setIsLoading(false);
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,7 +166,7 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <AuthProvider>
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
         {/* Skip Link for Accessibility */}
         <a href="#main-content" className="skip-link">
@@ -131,6 +181,7 @@ export default function Home() {
           />
         </Head>
         <Header />
+        <PersistentUsageBar />
         
         {/* Hero Section */}
         <main id="main-content" className="relative overflow-hidden">
@@ -216,6 +267,16 @@ export default function Home() {
                     {error}
                   </motion.div>
                 )}
+
+                {/* Usage Limit Display */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  className="mt-6 max-w-md mx-auto"
+                >
+                  <UsageLimitDisplay />
+                </motion.div>
               </motion.div>
 
               {/* Quick Suggestions */}
@@ -440,7 +501,7 @@ export default function Home() {
         <Footer />
       </div>
       <Toaster />
-    </>
+    </AuthProvider>
   );
 }
 

@@ -8,8 +8,8 @@ import { useState } from "react";
 interface MovieCardProps {
   id: string;
   title: string;
-  releaseYear: string;
-  rating: number;
+  releaseYear?: string | null; // may be undefined / null
+  rating?: number | null;      // may be undefined / null
   posterPath: string;
   aireview: string;
   className?: string;
@@ -26,20 +26,45 @@ export function MovieCard({
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
-  const year = new Date(releaseYear).getFullYear();
-  const ratingColor = rating >= 8 ? "text-green-400" : rating >= 6 ? "text-yellow-400" : "text-red-400";
-  const ratingBgColor = rating >= 8 ? "bg-green-400/20" : rating >= 6 ? "bg-yellow-400/20" : "bg-red-400/20";
+
+  // Safely derive year
+  let year: number | null = null;
+  if (releaseYear) {
+    const parsed = new Date(releaseYear);
+    if (!isNaN(parsed.getTime())) {
+      year = parsed.getFullYear();
+    }
+  }
+
+  // Normalize rating for styling logic
+  const numericRating = typeof rating === 'number' && isFinite(rating) ? rating : null;
+  const ratingColor = numericRating === null
+    ? "text-gray-300"
+    : numericRating >= 8
+      ? "text-green-400"
+      : numericRating >= 6
+        ? "text-yellow-400"
+        : "text-red-400";
+  const ratingBgColor = numericRating === null
+    ? "bg-gray-400/20"
+    : numericRating >= 8
+      ? "bg-green-400/20"
+      : numericRating >= 6
+        ? "bg-yellow-400/20"
+        : "bg-red-400/20";
 
   const handleCardClick = () => {
-    // On mobile, toggle expanded state first, then navigate on second click
-    if (window.innerWidth < 640) {
-      if (!isMobileExpanded) {
-        setIsMobileExpanded(true);
-        return;
+    if (typeof window !== 'undefined') {
+      // On mobile, toggle expanded state first, then navigate on second click
+      if (window.innerWidth < 640) {
+        if (!isMobileExpanded) {
+          setIsMobileExpanded(true);
+          return;
+        }
       }
+      // Navigate to movie page
+      window.location.href = `/movie/${id}/watch/`;
     }
-    // Navigate to movie page
-    window.location.href = `/movie/${id}/watch/`;
   };
 
   const showOverlay = isHovered || isMobileExpanded;
@@ -74,7 +99,7 @@ export function MovieCard({
         <div className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full ${ratingBgColor} backdrop-blur-sm border border-white/20 z-20`}>
           <Star className={`w-3 h-3 ${ratingColor} fill-current`} />
           <span className={`text-xs font-semibold ${ratingColor}`}>
-            {rating.toFixed(1)}
+            {numericRating !== null ? numericRating.toFixed(1) : 'N/A'}
           </span>
         </div>
 
@@ -94,7 +119,7 @@ export function MovieCard({
           <div className="flex items-center gap-2 mt-1">
             <Calendar className="w-3 h-3 text-gray-300" />
             <span className="text-sm text-gray-300 font-medium drop-shadow-lg">
-              {year || "Unknown"}
+              {year ?? "Unknown"}
             </span>
           </div>
         </motion.div>
@@ -118,7 +143,7 @@ export function MovieCard({
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-gray-300" />
               <span className="text-sm text-gray-300 font-medium">
-                {year || "Unknown"}
+                {year ?? "Unknown"}
               </span>
             </div>
           </div>

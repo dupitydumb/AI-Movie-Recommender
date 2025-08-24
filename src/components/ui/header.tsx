@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Search, BookOpen, Home, User, LogOut, Heart, List } from "lucide-react";
+import { Film, Menu, X, Search, BookOpen, Home, User, LogOut, Heart, BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
@@ -24,7 +24,7 @@ export function Header() {
 
   const authenticatedNavLinks = [
     { href: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
-    { href: "/lists", label: "My Lists", icon: <List className="w-4 h-4" /> },
+    { href: "/dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4" /> },
     { href: "/saved", label: "Saved Movies", icon: <Heart className="w-4 h-4" /> },
     { href: "/docs", label: "API Docs", icon: <BookOpen className="w-4 h-4" /> },
   ];
@@ -34,9 +34,15 @@ export function Header() {
   const handleSignOut = async () => {
     console.log('Sign out clicked');
     try {
-      const result = await signOut();
-      console.log('Sign out result:', result);
-      setShowUserMenu(false);
+      const { error } = await signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+        // Optionally show a toaster notification on error
+      } else {
+        setShowUserMenu(false);
+        // Force a reload to ensure a clean state
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Sign out error:', error);
     }
