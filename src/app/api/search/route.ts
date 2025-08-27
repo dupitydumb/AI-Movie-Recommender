@@ -11,52 +11,161 @@ let ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 export async function GET(req: NextRequest) {
-  // Add CORS headers for cross-origin requests
-  const headers = {
+  const baseHeaders: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
   };
 
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
   const { searchParams } = new URL(req.url);
-  const authHeader =
-    req.headers.get("Authorization") ||
-    searchParams.get("apiKey") ||
-    req.headers.get("X-RapidAPI-Key");
 
-  if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+  // Extract API key from multiple auth mechanisms (Bearer, X-RapidAPI-Key, apiKey query)
+  let rawAuth = req.headers.get("Authorization") || "";
+  let token = "";
+  if (rawAuth.toLowerCase().startsWith("bearer ")) {
+    token = rawAuth.substring(7).trim();
+  } else if (rawAuth) {
+    token = rawAuth.trim();
+  }
+  token = token || searchParams.get("apiKey") || req.headers.get("X-RapidAPI-Key") || "";
+
+  if (!token) {
+    return errorResponse(401, {
+      code: "invalid_api_key",
+      message: "Missing API key",
+      details: "Provide a valid API key via Authorization: Bearer <key>, X-RapidAPI-Key header, or apiKey query param (testing only).",
+      requestId,
+      timestamp
+    }, baseHeaders);
   }
 
-  const allowedToken = (await Redis.fromEnv().hget(authHeader, "token")) || "";
-  // if (authHeader !== allowedToken) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
-
-  if (authHeader !== allowedToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+  // Validate token against Redis (keyed by token, field "token")
+  const storedToken = (await Redis.fromEnv().hget(token, "token")) || "";
+  if (token !== storedToken && token !== process.env.API_KEY && token !== process.env.API_KEY_TEST) {
+    return errorResponse(401, {
+      code: "invalid_api_key",
+      message: "API key is invalid",
+      details: "The supplied API key was not recognized.",
+      requestId,
+      timestamp
+    }, baseHeaders);
   }
 
-  if (authHeader == process.env.API_KEY_TEST) {
+  // Adjust rate limit for test key
+  if (token === process.env.API_KEY_TEST) {
     ratelimit = new Ratelimit({
       redis: Redis.fromEnv(),
-      limiter: Ratelimit.slidingWindow(15, "60 m"), // Adjusted rate limit for test API key
+      limiter: Ratelimit.slidingWindow(15, "60 m"),
       analytics: true,
       prefix: "@upstash/ratelimit",
     });
   }
 
-  const name = searchParams.get("q");
-  if (!name) {
-    return NextResponse.json({ error: "No name provided" }, { status: 400, headers });
+  const query = searchParams.get("q") || "";
+  if (!query) {
+    return errorResponse(400, {
+      code: "missing_parameter",
+      message: "The 'q' parameter is required",
+      details: "Provide a natural language query describing the types of movies you want.",
+      requestId,
+      timestamp
+    }, baseHeaders);
   }
-  const input = sanitizeInput(name);
-  const { success } = await ratelimit.limit("search");
-  if (!success) {
-    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429, headers });
+
+  if (query.length > 300) {
+    return errorResponse(400, {
+      code: "query_too_long",
+      message: "Query exceeds maximum length (300 characters)",
+      details: "Shorten your query to be more concise.",
+      requestId,
+      timestamp
+    }, baseHeaders);
   }
-  const result = await run(input);
-  return NextResponse.json(result, { headers });
+
+  const sanitized = sanitizeInput(query);
+
+  // Per-key rate limiting (use token in key for fairness)
+  const rateKey = `search:${token}`;
+  const rate = await ratelimit.limit(rateKey);
+  const windowLabel = token === process.env.API_KEY_TEST ? "60m" : "1m";
+
+  if (!rate.success) {
+    return errorResponse(429, {
+      code: "rate_limit_exceeded",
+      message: "Rate limit exceeded",
+      details: "Too many requests for the current window. Please wait before retrying.",
+      requestId,
+      timestamp,
+      limit: rate.limit,
+      remaining: rate.remaining,
+      reset: rate.reset
+    }, {
+      ...baseHeaders,
+      ...rateLimitHeaders(rate, windowLabel, true)
+    });
+  }
+
+  try {
+    const data = await run(sanitized);
+
+    if (data.error) {
+      // Map internal run error codes to HTTP statuses from spec
+      let status = 500;
+      let code = data.code || "internal_error";
+      switch (code) {
+        case "ai_unavailable":
+        case "tmdb_unavailable":
+          status = 503; // Service Unavailable
+          break;
+        case "invalid_ai_response":
+          status = 503; // treat malformed upstream AI response as temporary service issue
+          break;
+        default:
+          status = 500;
+      }
+      return errorResponse(status, {
+        code,
+        message: data.error,
+        details: data.details || "",
+        requestId,
+        timestamp
+      }, {
+        ...baseHeaders,
+        ...rateLimitHeaders(rate, windowLabel, false)
+      });
+    }
+
+    return NextResponse.json({
+      movies: data.movies || [],
+      _metadata: {
+        requestId,
+        timestamp,
+        source: data.source || (data.movies && data.movies.length > 0 ? "tmdb_or_ai" : "ai"),
+        query: query,
+        sanitized_query: sanitized
+      }
+    }, {
+      headers: {
+        ...baseHeaders,
+        ...rateLimitHeaders(rate, windowLabel, false)
+      }
+    });
+  } catch (e: any) {
+    const isUpstream = /TMDB|AI/i.test(e?.message || "");
+    const status = isUpstream ? 503 : 500;
+    return errorResponse(status, {
+      code: isUpstream ? "service_unavailable" : "internal_error",
+      message: isUpstream ? "Upstream service temporarily unavailable" : "Internal server error",
+      details: e?.message || "Unexpected error processing request",
+      requestId,
+      timestamp
+    }, {
+      ...baseHeaders,
+      ...rateLimitHeaders(rate, windowLabel, false)
+    });
+  }
 }
 
 // Add OPTIONS handler for preflight requests
@@ -173,40 +282,40 @@ const generationConfig = {
   temperature: 0,
   topP: 0.95,
   topK: 40,
-  maxOutputTokens: 4000,
+  maxOutputTokens: 8000,
   responseMimeType: "text/plain",
 };
 
 async function run(input: string) {
   try {
     movies = [];
-    // First, search TMDB directly for movies matching the input
     const tmdbResults = await searchTMDB(input);
     if (tmdbResults.length > 0) {
-      // If we found direct matches, return them (limit to top 20 results)
       movies = tmdbResults.slice(0, 20);
-      return { movies };
+      return { movies, source: "tmdb" };
     }
-    // If no direct matches, fall back to AI recommendations
-    const chatSession = model.startChat({
-      generationConfig,
-      history: [],
-    });
+    // Fallback to AI recommendations
+    const chatSession = model.startChat({ generationConfig, history: [] });
     const result = await chatSession.sendMessage(`Find movies similar to or related to: ${input}`);
     let json;
     try {
       json = parseJsonWithBackticks(result.response.text());
-    } catch (error) {
-      return { error: "Invalid JSON response from AI", code: 502 };
+    } catch {
+      return { error: "AI response malformed", code: "invalid_ai_response" };
     }
     await Promise.all(
-      (json.recommendations || []).map(async (movie: any) => {
-        await getMovieDetails(movie.title);
-      })
+      (json.recommendations || []).map(async (movie: any) => getMovieDetails(movie.title))
     );
-    return { movies };
+    return { movies, source: "ai" };
   } catch (error: any) {
-    return { error: "Internal server error", code: 500 };
+    const msg = error?.message || "Unknown failure";
+    if (/fetching|TMDB/i.test(msg)) {
+      return { error: "TMDB service unavailable", code: "tmdb_unavailable", details: msg };
+    }
+    if (/AI|model/i.test(msg)) {
+      return { error: "AI service unavailable", code: "ai_unavailable", details: msg };
+    }
+    return { error: "Internal server error", code: "internal_error", details: msg };
   }
 }
 
@@ -272,4 +381,26 @@ async function getMovieDetails(movieName: string) {
   if (movie) {
     movies.push(movie);
   }
+}
+
+// Helper: build standard error response
+function errorResponse(status: number, error: any, extraHeaders: Record<string,string>) {
+  const body = { error };
+  return NextResponse.json(body, { status, headers: extraHeaders });
+}
+
+// Helper: construct rate limit headers
+function rateLimitHeaders(rate: any, windowLabel: string, limited: boolean) {
+  // Upstash rate object typically has: limit, remaining, reset
+  const resetSeconds = Math.max(0, Math.floor((rate.reset * 1000 - Date.now()) / 1000));
+  const headers: Record<string,string> = {
+    'X-RateLimit-Limit': String(rate.limit ?? 0),
+    'X-RateLimit-Remaining': String(rate.remaining ?? 0),
+    'X-RateLimit-Reset': String(rate.reset ?? 0),
+    'X-RateLimit-Window': windowLabel,
+  };
+  if (limited) {
+    headers['Retry-After'] = String(resetSeconds);
+  }
+  return headers;
 }
