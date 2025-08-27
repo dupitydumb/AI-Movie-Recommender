@@ -26,17 +26,18 @@ export function Header() {
           aria-label="Movie Recommender Home"
         >
           <motion.div
-            whileHover={{ rotate: 12 }}
+            whileHover={{ rotate: 12, scale: 1.05 }}
             transition={{ duration: 0.3 }}
-            className="p-2 bg-red-500/20 rounded-xl border border-red-500/30"
+            className="relative p-2.5 bg-gradient-to-br from-red-500/20 via-red-500/15 to-purple-500/20 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/10"
           >
             <Film className="h-6 w-6 text-red-400" />
+            <div className="absolute inset-0 bg-red-500/5 rounded-xl blur-sm" />
           </motion.div>
           <div className="flex flex-col">
-            <span className="font-bold text-xl text-white tracking-tight">
+            <span className="font-bold text-xl bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent tracking-tight">
               Screenpick
             </span>
-            <span className="text-xs text-gray-400 -mt-1">
+            <span className="text-xs text-red-400/70 -mt-0.5 font-medium tracking-wide uppercase">
               AI-Powered Discovery
             </span>
           </div>
@@ -45,24 +46,29 @@ export function Header() {
         {/* Desktop Navigation - Minimal Chrome */}
         <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium ${
-                pathname === link.href
-                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800/50"
-              }`}
-            >
-              {link.icon}
-              {link.label}
-            </Link>
+            <div key={link.href} className="relative">
+              <Link
+                href={link.href}
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 font-medium group overflow-hidden ${
+                  pathname === link.href
+                    ? "bg-red-500/15 text-red-400 border border-red-500/25 shadow-sm shadow-red-500/10"
+                    : "text-gray-300 hover:text-white hover:bg-gray-800/40"
+                }`}
+              >
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative">{link.icon}</span>
+                <span className="relative">{link.label}</span>
+              </Link>
+              {pathname === link.href && (
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-red-400 rounded-full" />
+              )}
+            </div>
           ))}
           
           {/* Primary CTA - Accent Red */}
           <Button
             asChild
-            className="ml-6 bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-red-500/30 focus:ring-2 focus:ring-red-500/40 focus:outline-none transform hover:scale-[1.04] min-h-[44px]"
+            className="ml-6 bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 focus:ring-2 focus:ring-red-500/40 focus:outline-none transform hover:scale-[1.02] min-h-[44px]"
           >
             <a
               href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
@@ -80,7 +86,7 @@ export function Header() {
           <Button
             asChild
             variant="outline"
-            className="ml-3 bg-gray-800/60 border border-gray-700/60 hover:border-red-500/50 hover:bg-gray-800/80 text-gray-200 hover:text-white font-semibold px-5 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 focus:ring-2 focus:ring-red-500/30 focus:outline-none min-h-[44px]"
+            className="ml-3 bg-gray-800/70 border border-gray-700/60 hover:border-red-500/40 hover:bg-gray-800/90 text-gray-300 hover:text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 focus:ring-2 focus:ring-red-500/30 focus:outline-none min-h-[44px]"
           >
             <a
               href="https://discord.gg/raesB7TKzt"
@@ -138,38 +144,45 @@ export function Header() {
                 </div>
 
                 {/* Mobile Navigation Links */}
-                <nav className="flex-1 px-6 py-8 space-y-2">
-                  {navLinks.map((link, index) => (
-                    <motion.div
-                      key={link.href}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Link
-                        href={link.href}
-                        className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 text-lg font-medium min-h-[44px] ${
-                          pathname === link.href
-                            ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                            : "text-gray-300 hover:text-white hover:bg-gray-800/50"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
+                <nav className="flex-1 px-6 py-12 space-y-1">
+                  <div className="space-y-1 pb-6 border-b border-gray-800/50 mb-6">
+                    {navLinks.map((link, index) => (
+                      <motion.div
+                        key={link.href}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="relative"
                       >
-                        {link.icon}
-                        {link.label}
-                      </Link>
-                    </motion.div>
-                  ))}
+                        <Link
+                          href={link.href}
+                          className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 text-lg font-medium min-h-[56px] overflow-hidden group ${
+                            pathname === link.href
+                              ? "bg-red-500/15 text-red-400 border border-red-500/25 shadow-sm shadow-red-500/10"
+                              : "text-gray-300 hover:text-white hover:bg-gray-800/40"
+                          }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <span className="relative">{link.icon}</span>
+                          <span className="relative">{link.label}</span>
+                        </Link>
+                        {pathname === link.href && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-red-400 rounded-full" />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
                   
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: navLinks.length * 0.1 }}
-                    className="pt-6 space-y-3"
+                    className="space-y-4"
                   >
                     <Button
                       asChild
-                      className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-md hover:shadow-red-500/30 transform hover:scale-[1.03] min-h-[52px]"
+                      className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 transform hover:scale-[1.02] min-h-[56px]"
                     >
                       <a
                         href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
@@ -186,7 +199,7 @@ export function Header() {
                     </Button>
                     <Button
                       asChild
-                      className="w-full bg-gray-800/70 border border-gray-700/70 hover:border-red-500/50 hover:bg-gray-800 text-gray-200 hover:text-white font-semibold py-4 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 min-h-[52px]"
+                      className="w-full bg-gray-800/70 border border-gray-700/70 hover:border-red-500/40 hover:bg-gray-800/90 text-gray-300 hover:text-white font-semibold py-4 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 min-h-[56px]"
                     >
                       <a
                         href="https://discord.gg/raesB7TKzt"
