@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Search, BookOpen, Home } from "lucide-react";
+import { Film, Menu, X, Search, BookOpen, Home, Users, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
@@ -62,14 +62,36 @@ export function Header() {
           {/* Primary CTA - Accent Red */}
           <Button
             asChild
-            className="ml-6 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
+            className="ml-6 bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-red-500/30 focus:ring-2 focus:ring-red-500/40 focus:outline-none transform hover:scale-[1.04] min-h-[44px]"
           >
             <a
               href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Get API Access on RapidAPI"
             >
-              Get API Access
+              <span className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4" />
+                Get API Access
+              </span>
+            </a>
+          </Button>
+          {/* Community CTA */}
+          <Button
+            asChild
+            variant="outline"
+            className="ml-3 bg-gray-800/60 border border-gray-700/60 hover:border-red-500/50 hover:bg-gray-800/80 text-gray-200 hover:text-white font-semibold px-5 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 focus:ring-2 focus:ring-red-500/30 focus:outline-none min-h-[44px]"
+          >
+            <a
+              href="https://discord.gg/raesB7TKzt"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Join Community Discord Server"
+            >
+              <span className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Join Community
+              </span>
             </a>
           </Button>
         </nav>
@@ -143,19 +165,40 @@ export function Header() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: navLinks.length * 0.1 }}
-                    className="pt-6"
+                    className="pt-6 space-y-3"
                   >
                     <Button
                       asChild
-                      className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 min-h-[44px]"
+                      className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-md hover:shadow-red-500/30 transform hover:scale-[1.03] min-h-[52px]"
                     >
                       <a
                         href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsMenuOpen(false)}
+                        aria-label="Get API Access on RapidAPI"
                       >
-                        Get API Access
+                        <span className="flex items-center justify-center gap-2">
+                          <KeyRound className="w-5 h-5" />
+                          Get API Access
+                        </span>
+                      </a>
+                    </Button>
+                    <Button
+                      asChild
+                      className="w-full bg-gray-800/70 border border-gray-700/70 hover:border-red-500/50 hover:bg-gray-800 text-gray-200 hover:text-white font-semibold py-4 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 min-h-[52px]"
+                    >
+                      <a
+                        href="https://discord.gg/raesB7TKzt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsMenuOpen(false)}
+                        aria-label="Join Community Discord Server"
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          <Users className="w-5 h-5" />
+                          Join Community
+                        </span>
                       </a>
                     </Button>
                   </motion.div>

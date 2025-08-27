@@ -102,23 +102,25 @@ export default function DocsContent() {
                 Get started in minutes with our comprehensive guides and examples.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.button
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.a
+                  href="/docs#introduction"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 flex items-center gap-2 justify-center"
                 >
                   Get Started
                   <ArrowRight className="w-4 h-4" />
-                </motion.button>
-                <motion.button
+                </motion.a>
+                <motion.a
+                  href="/docs/quickstart"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 hover:border-gray-600 text-gray-300 hover:text-white font-semibold rounded-xl transition-all duration-200"
                 >
-                  View Examples
-                </motion.button>
-              </div>
+                  Quick Start
+                </motion.a>
+                </div>
             </motion.div>
           </div>
         </section>

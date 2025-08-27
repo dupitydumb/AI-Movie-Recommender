@@ -21,7 +21,6 @@ export function ApiDocumentation() {
     { id: "rate-limits", title: "Rate Limits" },
     { id: "endpoints", title: "Endpoints" },
     { id: "errors", title: "Error Handling" },
-    { id: "sdks", title: "SDKs & Libraries" },
   ];
 
   const endpoints = [
@@ -668,65 +667,92 @@ checkAPIHealth();`,
               <h3 className="text-xl font-bold text-white mb-4">Rate Limit Tiers</h3>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse bg-gray-800/50 rounded-xl overflow-hidden">
-                  <thead>
+                    <thead>
                     <tr className="bg-gray-700/50">
                       <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Plan</th>
                       <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Daily Requests</th>
                       <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Per Minute</th>
                       <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Features</th>
                       <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Best For</th>
+                      <th className="border border-gray-600 px-6 py-4 text-left font-bold text-white">Price</th>
                     </tr>
-                  </thead>
-                  <tbody>
+                    </thead>
+                    <tbody>
                     <tr className="hover:bg-gray-700/20 transition-colors">
                       <td className="border border-gray-600 px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                          <span className="font-semibold text-green-400">Free</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        <span className="font-semibold text-blue-400">Basic</span>
+                      </div>
                       </td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">15 requests</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">1 request</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Basic AI recommendations</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Testing & prototyping</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">20 requests</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">1,000 requests per hour</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">All endpoints</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Small applications</td>
+                      <td className="border border-gray-600 px-6 py-4 text-green-400 font-semibold">Free</td>
                     </tr>
                     <tr className="hover:bg-gray-700/20 transition-colors">
                       <td className="border border-gray-600 px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                          <span className="font-semibold text-blue-400">Basic</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
+                        <span className="font-semibold text-purple-400">Pro</span>
+                      </div>
                       </td>
                       <td className="border border-gray-600 px-6 py-4 text-gray-300">2,500 requests</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">10 requests</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">All endpoints + priority support</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Small applications</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">1,000 requests per hour</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Priority support</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Production apps</td>
+                      <td className="border border-gray-600 px-6 py-4 text-yellow-400 font-semibold">$5/mo</td>
                     </tr>
                     <tr className="hover:bg-gray-700/20 transition-colors">
                       <td className="border border-gray-600 px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
-                          <span className="font-semibold text-purple-400">Pro</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
+                        <span className="font-semibold text-pink-400">Mega</span>
+                      </div>
                       </td>
                       <td className="border border-gray-600 px-6 py-4 text-gray-300">10,000 requests</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">50 requests</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Enhanced AI + analytics dashboard</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Production apps</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">4,500 requests per hour</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Priority support</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Large apps</td>
+                      <td className="border border-gray-600 px-6 py-4 text-orange-400 font-semibold">$15/mo</td>
+                    </tr>
+                    <tr className="hover:bg-gray-700/20 transition-colors">
+                      <td className="border border-gray-600 px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                        <span className="font-semibold text-red-400">Ultra</span>
+                      </div>
+                      </td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">30,000</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">4,500 requests per hour</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Direct Support</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">High-volume enterprise</td>
+                      <td className="border border-gray-600 px-6 py-4 text-red-400 font-semibold">$30/mo</td>
                     </tr>
                     <tr className="hover:bg-gray-700/20 transition-colors">
                       <td className="border border-gray-600 px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                          <span className="font-semibold text-red-400">Enterprise</span>
+                          <span className="w-3 h-3 bg-teal-500 rounded-full"></span>
+                          <span className="font-semibold text-teal-400">Custom</span>
                         </div>
                       </td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Custom limits</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Custom burst</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">White-label + SLA + dedicated support</td>
-                      <td className="border border-gray-600 px-6 py-4 text-gray-300">High-volume enterprise</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Unlimited*</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Custom</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Dedicated support, SLA, custom features</td>
+                      <td className="border border-gray-600 px-6 py-4 text-gray-300">Enterprise, partners</td>
+                        <td className="border border-gray-600 px-6 py-4 text-teal-400 font-semibold">
+                        <a
+                          href="https://discord.gg/raesB7TKzt"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline hover:text-teal-300"
+                        >
+                          Contact Us
+                        </a>
+                        </td>
                     </tr>
-                  </tbody>
+                    </tbody>
                 </table>
               </div>
 
@@ -961,31 +987,31 @@ checkAPIHealth();`,
                         <TabsTrigger value="python">Python</TabsTrigger>
                         <TabsTrigger value="node">Node.js</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="curl" className="mt-0">
+                  <TabsContent value="curl" className="mt-0">
                     <div className="bg-gray-800 p-4 rounded-md overflow-x-auto min-w-0">
                       <pre className="text-sm whitespace-pre-wrap break-words">
-                        <code>{endpoint.codeExamples.curl}</code>
+                        <code className="language-bash">{`${endpoint.codeExamples.curl}`}</code>
                       </pre>
                     </div>
                   </TabsContent>
                   <TabsContent value="javascript" className="mt-0">
                     <div className="bg-gray-800 p-4 rounded-md overflow-x-auto min-w-0">
                       <pre className="text-sm whitespace-pre-wrap break-words">
-                        <code>{endpoint.codeExamples.javascript}</code>
+                        <code className="language-javascript">{`${endpoint.codeExamples.javascript}`}</code>
                       </pre>
                     </div>
                   </TabsContent>
                   <TabsContent value="python" className="mt-0">
                     <div className="bg-gray-800 p-4 rounded-md overflow-x-auto min-w-0">
                       <pre className="text-sm whitespace-pre-wrap break-words">
-                        <code>{endpoint.codeExamples.python}</code>
+                        <code className="language-python">{`${endpoint.codeExamples.python}`}</code>
                       </pre>
                     </div>
                   </TabsContent>
                   <TabsContent value="node" className="mt-0">
                     <div className="bg-gray-800 p-4 rounded-md overflow-x-auto min-w-0">
                       <pre className="text-sm whitespace-pre-wrap break-words">
-                        <code>{endpoint.codeExamples.node}</code>
+                        <code className="language-javascript">{`${endpoint.codeExamples.node}`}</code>
                       </pre>
                     </div>
                   </TabsContent>
@@ -1248,316 +1274,6 @@ async function apiRequest(url, config = {}) {
             </div>
           </section>
 
-          {/* SDKs & Libraries */}
-          <section id="sdks" className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-white">SDKs & Libraries</h2>
-            <div className="prose prose-invert max-w-none space-y-6">
-              <p className="text-gray-300 leading-relaxed">
-                While the Screenpick API is simple enough to use with any HTTP library, we've created SDKs and 
-                helper libraries to make integration even easier. These libraries handle authentication, error 
-                handling, and provide convenient methods for common use cases.
-              </p>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-500/30 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-yellow-400 font-bold text-sm">JS</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-yellow-400">JavaScript SDK</h3>
-                  </div>
-                  <p className="text-yellow-100 text-sm mb-4">
-                    Full-featured SDK for browser and Node.js environments with TypeScript support.
-                  </p>
-                  <div className="space-y-2">
-                    <div className="bg-gray-900 p-2 rounded text-xs">
-                      <code className="text-gray-300">npm install screenpick-js</code>
-                    </div>
-                    <a href="#" className="text-yellow-400 hover:text-yellow-300 text-sm underline block">
-                      View on GitHub →
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-400 font-bold text-sm">PY</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-blue-400">Python SDK</h3>
-                  </div>
-                  <p className="text-blue-100 text-sm mb-4">
-                    Pythonic SDK with async support, perfect for data science and web applications.
-                  </p>
-                  <div className="space-y-2">
-                    <div className="bg-gray-900 p-2 rounded text-xs">
-                      <code className="text-gray-300">pip install screenpick-python</code>
-                    </div>
-                    <a href="#" className="text-blue-400 hover:text-blue-300 text-sm underline block">
-                      View on PyPI →
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-500/30 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-green-400 font-bold text-sm">GO</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-green-400">Go SDK</h3>
-                  </div>
-                  <p className="text-green-100 text-sm mb-4">
-                    Lightweight and fast Go client with built-in concurrency support.
-                  </p>
-                  <div className="space-y-2">
-                    <div className="bg-gray-900 p-2 rounded text-xs">
-                      <code className="text-gray-300">go get github.com/screenpick/go-sdk</code>
-                    </div>
-                    <a href="#" className="text-green-400 hover:text-green-300 text-sm underline block">
-                      View on GitHub →
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-4">Quick Start Examples</h3>
-              
-              <Tabs defaultValue="javascript-sdk" className="w-full">
-                <TabsList className="mb-4 bg-gray-700/50">
-                  <TabsTrigger value="javascript-sdk" className="data-[state=active]:bg-red-500/20">JavaScript SDK</TabsTrigger>
-                  <TabsTrigger value="python-sdk" className="data-[state=active]:bg-red-500/20">Python SDK</TabsTrigger>
-                  <TabsTrigger value="go-sdk" className="data-[state=active]:bg-red-500/20">Go SDK</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="javascript-sdk" className="mt-0">
-                  <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl overflow-hidden">
-                    <div className="bg-gray-700/50 px-4 py-2">
-                      <span className="text-sm font-semibold text-gray-300">screenpick-js SDK</span>
-                    </div>
-                    <div className="p-4 overflow-x-auto">
-                      <pre className="text-sm text-gray-300">
-                        <code>{`import { ScreenpickClient } from 'screenpick-js';
-
-// Initialize the client
-const client = new ScreenpickClient({
-  apiKey: 'your_api_key_here',
-  timeout: 10000, // 10 seconds
-});
-
-// Get movie recommendations
-async function getRecommendations() {
-  try {
-    const movies = await client.recommendations.search({
-      query: 'romantic comedies from the 90s',
-      limit: 10
-    });
-    
-    console.log(\`Found \${movies.length} recommendations:\`);
-    movies.forEach(movie => {
-      console.log(\`- \${movie.title} (\${movie.release_date?.split('-')[0]})\`);
-    });
-    
-    return movies;
-  } catch (error) {
-    if (error.code === 'RATE_LIMIT_EXCEEDED') {
-      console.log('Rate limit hit, waiting before retry...');
-      await client.waitForRateLimit();
-      return getRecommendations(); // Retry
-    }
-    throw error;
-  }
-}
-
-// Get movie IDs
-async function getMovieIDs(title) {
-  const ids = await client.movies.getIDs(title);
-  return ids;
-}
-
-// Check API health
-const isHealthy = await client.health.check();`}</code>
-                      </pre>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="python-sdk" className="mt-0">
-                  <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl overflow-hidden">
-                    <div className="bg-gray-700/50 px-4 py-2">
-                      <span className="text-sm font-semibold text-gray-300">screenpick-python SDK</span>
-                    </div>
-                    <div className="p-4 overflow-x-auto">
-                      <pre className="text-sm text-gray-300">
-                        <code>{`from screenpick import ScreenpickClient
-import asyncio
-
-# Initialize the client
-client = ScreenpickClient(
-    api_key="your_api_key_here",
-    timeout=10.0,
-    max_retries=3
-)
-
-# Synchronous usage
-def get_recommendations_sync():
-    try:
-        movies = client.recommendations.search(
-            query="romantic comedies from the 90s",
-            limit=10
-        )
-        
-        print(f"Found {len(movies)} recommendations:")
-        for movie in movies:
-            year = movie.release_date[:4] if movie.release_date else "Unknown"
-            print(f"- {movie.title} ({year})")
-            
-        return movies
-    except ScreenpickRateLimitError as e:
-        print(f"Rate limited. Retry after {e.retry_after} seconds")
-        time.sleep(e.retry_after)
-        return get_recommendations_sync()
-
-# Async usage
-async def get_recommendations_async():
-    async with ScreenpickClient.async_client(api_key="your_key") as client:
-        movies = await client.recommendations.search(
-            query="sci-fi movies with time travel"
-        )
-        return movies
-
-# Batch requests
-movies = client.batch([
-    client.recommendations.search("action movies"),
-    client.movies.get_ids("Inception"),
-    client.health.check()
-])
-
-# Run async function
-recommendations = asyncio.run(get_recommendations_async())`}</code>
-                      </pre>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="go-sdk" className="mt-0">
-                  <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl overflow-hidden">
-                    <div className="bg-gray-700/50 px-4 py-2">
-                      <span className="text-sm font-semibold text-gray-300">Go SDK</span>
-                    </div>
-                    <div className="p-4 overflow-x-auto">
-                      <pre className="text-sm text-gray-300">
-                        <code>{`package main
-
-import (
-    "context"
-    "fmt"
-    "log"
-    "time"
-    
-    "github.com/screenpick/go-sdk/screenpick"
-)
-
-func main() {
-    // Initialize client
-    client := screenpick.NewClient(&screenpick.Config{
-        APIKey:     "your_api_key_here",
-        Timeout:    10 * time.Second,
-        MaxRetries: 3,
-    })
-    
-    ctx := context.Background()
-    
-    // Get recommendations
-    movies, err := client.Recommendations.Search(ctx, &screenpick.SearchRequest{
-        Query: "romantic comedies from the 90s",
-        Limit: 10,
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    fmt.Printf("Found %d recommendations:\\n", len(movies))
-    for _, movie := range movies {
-        year := "Unknown"
-        if movie.ReleaseDate != "" {
-            year = movie.ReleaseDate[:4]
-        }
-        fmt.Printf("- %s (%s)\\n", movie.Title, year)
-    }
-    
-    // Get movie IDs with context timeout
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    
-    ids, err := client.Movies.GetIDs(ctx, "Inception")
-    if err != nil {
-        log.Printf("Error getting movie IDs: %v", err)
-        return
-    }
-    
-    for _, id := range ids {
-        fmt.Printf("Movie: %s, TMDB: %s, IMDB: %s\\n", 
-            id.Title, id.TMDB, id.IMDB)
-    }
-    
-    // Concurrent requests
-    movieChan := make(chan []screenpick.Movie, 3)
-    queries := []string{
-        "action movies",
-        "horror films",
-        "documentaries",
-    }
-    
-    for _, query := range queries {
-        go func(q string) {
-            movies, _ := client.Recommendations.Search(ctx, &screenpick.SearchRequest{
-                Query: q,
-                Limit: 5,
-            })
-            movieChan <- movies
-        }(query)
-    }
-    
-    // Collect results
-    for i := 0; i < len(queries); i++ {
-        movies := <-movieChan
-        fmt.Printf("Query %d returned %d movies\\n", i+1, len(movies))
-    }
-}`}</code>
-                      </pre>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl p-6 mt-8">
-                <h4 className="text-purple-400 font-semibold mb-3 flex items-center gap-2">
-                  🛠️ Community Libraries
-                </h4>
-                <p className="text-purple-100 text-sm mb-4">
-                  Don't see your favorite language? The community has created unofficial libraries:
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div className="bg-gray-800/50 p-3 rounded-lg text-center">
-                    <div className="font-semibold text-white mb-1">PHP</div>
-                    <a href="#" className="text-purple-400 hover:text-purple-300 underline">screenpick-php</a>
-                  </div>
-                  <div className="bg-gray-800/50 p-3 rounded-lg text-center">
-                    <div className="font-semibold text-white mb-1">Ruby</div>
-                    <a href="#" className="text-purple-400 hover:text-purple-300 underline">screenpick-rb</a>
-                  </div>
-                  <div className="bg-gray-800/50 p-3 rounded-lg text-center">
-                    <div className="font-semibold text-white mb-1">Rust</div>
-                    <a href="#" className="text-purple-400 hover:text-purple-300 underline">screenpick-rs</a>
-                  </div>
-                  <div className="bg-gray-800/50 p-3 rounded-lg text-center">
-                    <div className="font-semibold text-white mb-1">C#</div>
-                    <a href="#" className="text-purple-400 hover:text-purple-300 underline">Screenpick.NET</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* Get API Key CTA */}
           <div className="bg-gradient-to-r from-red-900/30 via-purple-900/30 to-pink-900/30 border border-red-500/30 rounded-2xl p-8 text-center backdrop-blur-sm">
