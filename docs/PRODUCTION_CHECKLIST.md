@@ -16,7 +16,6 @@
 - UPSTASH_REDIS_REST_TOKEN (regenerate in Upstash dashboard)
 - TMDB API key (regenerate in TMDB settings)
 - GAPI key (regenerate in Google Cloud Console)
-- FIREBASE_API_KEY (regenerate in Firebase console)
 - SUPABASE_SERVICE_ROLE_KEY (regenerate in Supabase dashboard)
 
 # 2. Remove .env files from git history:
@@ -203,7 +202,11 @@ TMDB=new-tmdb-jwt-token
 GAPI=new-google-api-key
 API_KEY=new-api-key
 BASE_URL=https://screenpick.fun
-FIREBASE_API_KEY=new-firebase-key
+NEXT_PUBLIC_SUPABASE_URL=new-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=new-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=new-supabase-service-key
+NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID=your-stripe-pricing-table-id
+NEXT_PUBLIC_TMDB_API_KEY=new-tmdb-api-key
 # ... etc for all keys
 ```
 

@@ -63,14 +63,14 @@ export function Header() {
           {/* Primary CTA - Accent Red */}
           <Button
             asChild
-            className="ml-6 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
+            className="ml-6 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 text-red-400 hover:text-red-300 font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px] backdrop-blur-sm"
           >
             <a
               href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Get API Access
+              Get Full API Access
             </a>
           </Button>
         </nav>
@@ -148,7 +148,7 @@ export function Header() {
                   >
                     <Button
                       asChild
-                      className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 min-h-[44px]"
+                      className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 text-red-400 hover:text-red-300 font-semibold py-4 rounded-xl transition-all duration-200 min-h-[44px] backdrop-blur-sm"
                     >
                       <a
                         href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
@@ -156,7 +156,7 @@ export function Header() {
                         rel="noopener noreferrer"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        Get API Access
+                        Get Full API Access
                       </a>
                     </Button>
                   </motion.div>

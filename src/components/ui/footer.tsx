@@ -106,9 +106,18 @@ export function Footer() {
             viewport={{ once: true }}
           >
             <h3 className="font-bold text-white mb-6 text-lg">Connect</h3>
-            <p className="text-gray-400 mb-6 leading-relaxed">
+            <p className="text-gray-400 mb-4 leading-relaxed">
               Follow us for updates and movie recommendations
             </p>
+            <div className="mb-6">
+              <p className="text-sm text-gray-500 mb-2">Need help?</p>
+              <a 
+                href="mailto:support@screenpick.fun" 
+                className="text-red-400 hover:text-red-300 transition-colors duration-200 text-sm font-medium"
+              >
+                support@screenpick.fun
+              </a>
+            </div>
             <div className="flex gap-4">
               {[
                 { href: "https://twitter.com", icon: Twitter, label: "Twitter" },

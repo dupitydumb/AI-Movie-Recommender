@@ -199,7 +199,7 @@ const PricePage: React.FC = () => {
                   },
                   {
                     question: "What payment methods do you accept?",
-                    answer: "We accept all major credit cards, PayPal, and bank transfers for Enterprise plans."
+                    answer: "We accept all major credit cards and bank transfers for Enterprise plans."
                   },
                   {
                     question: "Can I cancel anytime?",
