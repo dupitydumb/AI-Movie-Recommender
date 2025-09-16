@@ -112,6 +112,24 @@ export class AuthMiddleware {
 
       // Apply rate limiting
       const rateLimit = customRateLimit || user.rateLimit || { requests: 100, window: '1h' };
+      
+      // For test users, check their custom request limit first
+      if (user.userId.startsWith('test_user_')) {
+        const testUserCheck = await this.checkTestUserLimit(user.userId);
+        if (!testUserCheck.success) {
+          return {
+            success: false,
+            response: this.createErrorResponse(429, {
+              code: 'test_user_limit_exceeded',
+              message: 'Test token request limit exceeded',
+              details: `You have used all ${testUserCheck.limit} requests for this test token.`,
+              requestId,
+              timestamp
+            })
+          };
+        }
+      }
+      
       const rateLimitResult = await this.applyRateLimit(user.userId, rateLimit, isLegacyAuth);
 
       if (!rateLimitResult.success) {
@@ -125,6 +143,11 @@ export class AuthMiddleware {
             timestamp
           }, rateLimitResult.headers)
         };
+      }
+
+      // For test users, update their custom request count
+      if (user.userId.startsWith('test_user_')) {
+        await this.updateTestUserUsage(user.userId);
       }
 
       return {
@@ -250,6 +273,76 @@ export class AuthMiddleware {
         success: false, 
         error: error instanceof Error ? error.message : 'Legacy auth failed' 
       };
+    }
+  }
+
+  /**
+   * Check if test user has exceeded their request limit
+   */
+  private async checkTestUserLimit(userId: string): Promise<{ success: boolean; limit: number; used: number; remaining: number }> {
+    const key = `test_user:${userId}`;
+    const data = await this.redis.get(key);
+    
+    if (!data) {
+      return { success: true, limit: 100, used: 0, remaining: 100 };
+    }
+
+    // Handle both string and object data from Redis
+    let testUserData;
+    if (typeof data === 'string') {
+      testUserData = JSON.parse(data);
+    } else {
+      testUserData = data;
+    }
+    
+    const used = testUserData.requestCount || 0;
+    const limit = 100; // Test user limit
+    
+    return {
+      success: used < limit,
+      limit,
+      used,
+      remaining: Math.max(0, limit - used)
+    };
+  }
+
+  /**
+   * Update test user usage count
+   */
+  private async updateTestUserUsage(userId: string): Promise<void> {
+    try {
+      // Get current test user data
+      const userData = await this.redis.get(`test_user:${userId}`);
+      
+      if (userData) {
+        let testUser;
+        if (typeof userData === 'string') {
+          testUser = JSON.parse(userData);
+        } else {
+          testUser = userData;
+        }
+        
+        // Increment request count
+        testUser.requestCount = (testUser.requestCount || 0) + 1;
+        testUser.lastUsed = new Date().toISOString();
+        
+        // Check if they've exceeded their limit
+        if (testUser.requestCount >= testUser.requestLimit) {
+          testUser.exhausted = true;
+          console.log(`Test user ${userId} has exhausted their request limit`);
+        }
+        
+        // Store updated data back to Redis with original expiry
+        const remainingTTL = await this.redis.ttl(`test_user:${userId}`);
+        await this.redis.set(`test_user:${userId}`, JSON.stringify(testUser), {
+          ex: Math.max(remainingTTL, 60), // At least 60 seconds remaining
+        });
+        
+        console.log(`Updated test user ${userId} usage: ${testUser.requestCount}/${testUser.requestLimit}`);
+      }
+    } catch (error) {
+      console.error('Failed to update test user usage:', error);
+      // Don't throw error to avoid blocking API requests
     }
   }
 
