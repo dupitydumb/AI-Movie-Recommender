@@ -97,17 +97,25 @@ function sanitizeInput(input: string): string {
 }
 
 async function getMovieRecommendations(query: string) {
-  // Import the existing AI logic
+  // Import the Google AI SDK
   const {
     GoogleGenerativeAI,
     HarmCategory,
     HarmBlockThreshold,
   } = require("@google/generative-ai");
 
-  let movies: { [key: string]: any }[] = [];
   const apiKey = process.env.GAPI;
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const tmdbToken = process.env.TMDB;
 
+  if (!apiKey) {
+    throw new Error("Google AI API key not configured");
+  }
+
+  if (!tmdbToken) {
+    throw new Error("TMDB API token not configured");
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     safetySettings: [
@@ -130,44 +138,112 @@ async function getMovieRecommendations(query: string) {
     ],
   });
 
-  // Load movie database
   try {
-    const response = await fetch(`${process.env.BASE_URL}/movie.json`);
-    movies = await response.json();
-  } catch (error) {
-    console.error("Failed to load movie database:", error);
-    throw new Error("Movie database unavailable");
-  }
+    // Step 1: Get movie titles from AI
+    const prompt = `Based on the user query "${query}", recommend 10 popular movie titles that best match this request. 
+    Consider genres, themes, moods, and other relevant factors.
+    
+    Return ONLY a JSON array of movie titles as strings, no additional text or explanation.
+    Format: ["Movie Title 1", "Movie Title 2", "Movie Title 3", ...]
+    Maximum 10 titles.`;
 
-  // Generate AI prompt
-  const prompt = `Based on the user query "${query}", recommend movies from the provided database. 
-  Return exactly 10 movie recommendations that best match the user's request. 
-  Consider genres, themes, release years, ratings, and other relevant factors.
-  
-  Movie Database (JSON array of movie objects):
-  ${JSON.stringify(movies.slice(0, 1000))} // Limit for API constraints
-  
-  Return ONLY a JSON array of movie objects that match the query, no additional text.
-  Each movie object should include: title, release_date, overview, genre_ids, vote_average, poster_path, backdrop_path, id.
-  Maximum 10 movies.`;
-
-  try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Parse AI response
+    // Parse AI response to get movie titles
     const cleanText = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const recommendedMovies = JSON.parse(cleanText);
+    const movieTitles = JSON.parse(cleanText);
     
-    return Array.isArray(recommendedMovies) ? recommendedMovies.slice(0, 10) : [];
+    if (!Array.isArray(movieTitles)) {
+      throw new Error("AI returned invalid format");
+    }
+
+    console.log('AI recommended titles:', movieTitles);
+
+    // Step 2: Search each title on TMDB and collect results
+    const allMovies = [];
+    const searchPromises = movieTitles.slice(0, 10).map(async (title: string) => {
+      try {
+        const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&include_adult=false&language=en-US&page=1`;
+        const tmdbResponse = await fetch(searchUrl, {
+          headers: {
+            'Authorization': `Bearer ${tmdbToken}`,
+            'accept': 'application/json',
+          },
+        });
+
+        if (!tmdbResponse.ok) {
+          console.error(`TMDB search failed for "${title}":`, tmdbResponse.status);
+          return [];
+        }
+
+        const tmdbData = await tmdbResponse.json();
+        
+        // Return the top 2 results for each title to get variety
+        return tmdbData.results?.slice(0, 2) || [];
+      } catch (error) {
+        console.error(`Error searching TMDB for "${title}":`, error);
+        return [];
+      }
+    });
+
+    // Wait for all TMDB searches to complete
+    const movieArrays = await Promise.all(searchPromises);
+    
+    // Flatten and deduplicate results
+    const movieMap = new Map();
+    movieArrays.forEach(movies => {
+      movies.forEach((movie: any) => {
+        if (movie && movie.id && !movieMap.has(movie.id)) {
+          movieMap.set(movie.id, {
+            id: movie.id,
+            title: movie.title,
+            release_date: movie.release_date,
+            overview: movie.overview,
+            genre_ids: movie.genre_ids,
+            vote_average: movie.vote_average,
+            vote_count: movie.vote_count,
+            popularity: movie.popularity,
+            poster_path: movie.poster_path,
+            backdrop_path: movie.backdrop_path,
+            adult: movie.adult,
+            original_language: movie.original_language,
+            original_title: movie.original_title,
+          });
+        }
+      });
+    });
+
+    const finalMovies = Array.from(movieMap.values())
+      .sort((a, b) => b.popularity - a.popularity) // Sort by popularity
+      .slice(0, 10); // Limit to 10 results
+
+    console.log(`Found ${finalMovies.length} movies after TMDB search`);
+    return finalMovies;
+
   } catch (error) {
-    console.error("AI recommendation error:", error);
-    // Fallback to basic search
-    return movies.filter(movie => 
-      movie.title?.toLowerCase().includes(query.toLowerCase()) ||
-      movie.overview?.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 10);
+    console.error("Movie recommendation error:", error);
+    
+    // Fallback: Direct TMDB search with the original query
+    try {
+      const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;
+      const tmdbResponse = await fetch(searchUrl, {
+        headers: {
+          'Authorization': `Bearer ${tmdbToken}`,
+          'accept': 'application/json',
+        },
+      });
+
+      if (tmdbResponse.ok) {
+        const tmdbData = await tmdbResponse.json();
+        return tmdbData.results?.slice(0, 10) || [];
+      }
+    } catch (fallbackError) {
+      console.error("Fallback TMDB search also failed:", fallbackError);
+    }
+    
+    throw new Error("Failed to get movie recommendations");
   }
 }
 
