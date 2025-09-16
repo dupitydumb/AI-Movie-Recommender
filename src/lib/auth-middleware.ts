@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, validateApiKeyAndGetUserData, type DecodedToken } from './jwt';
+import { apiKeyManager } from './api-key-manager';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { randomUUID } from 'crypto';
@@ -110,8 +111,21 @@ export class AuthMiddleware {
         }
       }
 
-      // Apply rate limiting
-      const rateLimit = customRateLimit || user.rateLimit || { requests: 100, window: '1h' };
+      // Determine effective rate limit (optionally override from fresh key record so updates apply immediately)
+      let rateLimit = customRateLimit || user.rateLimit || { requests: 100, window: '1h' };
+
+      // Attempt dynamic override by loading latest key record each request
+      try {
+        const derivedKeyId = this.deriveKeyId(user.apiKey);
+        if (derivedKeyId) {
+          const rec = await apiKeyManager.get(derivedKeyId, true);
+          if (rec && rec.rateLimit && (rec.rateLimit.requests !== rateLimit.requests || rec.rateLimit.window !== rateLimit.window)) {
+            rateLimit = rec.rateLimit; // override with current stored config
+          }
+        }
+      } catch (e) {
+        // Non-blocking
+      }
       
       // For test users, check their custom request limit first
       if (user.userId.startsWith('test_user_')) {
@@ -130,7 +144,8 @@ export class AuthMiddleware {
         }
       }
       
-      const rateLimitResult = await this.applyRateLimit(user.userId, rateLimit, isLegacyAuth);
+  const limiterKey = this.deriveKeyId(user.apiKey) ? `key:${this.deriveKeyId(user.apiKey)}` : user.userId;
+  const rateLimitResult = await this.applyRateLimit(limiterKey, rateLimit, isLegacyAuth);
 
       if (!rateLimitResult.success) {
         return {
@@ -148,6 +163,26 @@ export class AuthMiddleware {
       // For test users, update their custom request count
       if (user.userId.startsWith('test_user_')) {
         await this.updateTestUserUsage(user.userId);
+      }
+
+      // Record usage for JWT-authenticated requests (legacy already handled in validateApiKeyAndGetUserData)
+      try {
+        if (!isLegacyAuth) {
+          let keyId: string | null = null;
+          if (user.apiKey?.startsWith('key:')) {
+            keyId = user.apiKey.slice(4);
+          } else if (user.apiKey && user.apiKey !== 'guest') {
+            // Attempt reverse lookup (only works for tokens issued with real plain key)
+            const rec = await apiKeyManager.findByApiKey(user.apiKey);
+            if (rec) keyId = rec.keyId;
+          }
+          if (keyId) {
+            await apiKeyManager.recordUsage(keyId).catch(() => {});
+          }
+        }
+      } catch (e) {
+        // Non-blocking; log once maybe later (could add debug flag)
+        // console.warn('Usage record (JWT) failed', e);
       }
 
       return {
@@ -347,12 +382,12 @@ export class AuthMiddleware {
    * Apply rate limiting based on user and plan
    */
   private async applyRateLimit(
-    userId: string, 
+    limiterKey: string, 
     rateLimit: { requests: number; window: string },
     isLegacyAuth: boolean
   ): Promise<{ success: boolean; headers?: Record<string, string> }> {
     try {
-      const rateLimitKey = `${userId}:${rateLimit.requests}:${rateLimit.window}`;
+      const rateLimitKey = `${limiterKey}:${rateLimit.requests}:${rateLimit.window}`;
       
       // Get or create rate limiter for this configuration
       let rateLimiter = this.rateLimiters.get(rateLimitKey);
@@ -366,7 +401,7 @@ export class AuthMiddleware {
         this.rateLimiters.set(rateLimitKey, rateLimiter);
       }
 
-      const result = await rateLimiter.limit(userId);
+  const result = await rateLimiter.limit(limiterKey);
       
       const headers: Record<string, string> = {
         'X-RateLimit-Limit': rateLimit.requests.toString(),
@@ -386,6 +421,14 @@ export class AuthMiddleware {
       // Allow request to proceed if rate limiting fails
       return { success: true };
     }
+  }
+
+  /** Derive keyId from apiKey value (supports synthetic "key:<keyId>" tokens) */
+  private deriveKeyId(apiKey: string | undefined): string | null {
+    if (!apiKey) return null;
+    if (apiKey.startsWith('key:')) return apiKey.slice(4);
+    // Plain key (legacy) cannot cheaply produce keyId without hash mapping — skip to avoid extra roundtrip.
+    return null;
   }
 
   /**

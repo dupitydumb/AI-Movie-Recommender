@@ -1,5 +1,6 @@
 import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import { Redis } from '@upstash/redis';
+import { apiKeyManager } from './api-key-manager';
 
 export interface CustomJWTPayload extends JwtPayload {
   userId: string;
@@ -212,6 +213,32 @@ class JWTManager {
    * Validate API key and get user data for JWT generation
    */
   async validateApiKeyAndGetUserData(apiKey: string): Promise<CustomJWTPayload | null> {
+    try {
+      // Attempt new manager lookup first
+      const record = await apiKeyManager.findByApiKey(apiKey);
+      if (record) {
+        // Check status & expiration
+        if (record.status !== 'active') return null;
+        if (apiKeyManager.isExpired(record)) {
+          // Mark expired
+          await apiKeyManager.update(record.keyId, { status: 'expired' });
+          return null;
+        }
+        // Record usage (non-blocking)
+        apiKeyManager.recordUsage(record.keyId).catch(()=>{});
+        return {
+          userId: `user_${record.keyId}`,
+            email: record.metadata?.email || undefined,
+            apiKey: apiKey,
+            plan: record.plan,
+            rateLimit: record.rateLimit,
+            permissions: record.permissions,
+        } as CustomJWTPayload;
+      }
+    } catch (e) {
+      console.warn('ApiKeyManager lookup failed, falling back', e);
+    }
+
     try {
       // Check if API key exists in Redis (current system)
       const storedToken = await this.redis.hget(apiKey, "token");
