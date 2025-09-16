@@ -1,6 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import dotenv from "dotenv";
 import { authenticate, getCORSHeaders } from "@/lib/auth-middleware";
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 import { randomUUID } from 'crypto';
 
 dotenv.config();
@@ -10,17 +12,17 @@ export async function GET(req: NextRequest) {
   const timestamp = new Date().toISOString();
   const { searchParams } = new URL(req.url);
 
-  // Use new auth middleware for hybrid authentication
+  // Try to authenticate, but don't require (anonymous allowed)
   const authResult = await authenticate(req, {
-    requireAuth: true,
+    requireAuth: false,
     permissions: ['read', 'search'],
   });
-
-  if (!authResult.success) {
-    return authResult.response;
+  let user: any = { userId: 'anon', plan: 'free', permissions: [] };
+  let isLegacyAuth = false;
+  if (authResult.success) {
+    user = authResult.context.user;
+    isLegacyAuth = authResult.context.isLegacyAuth;
   }
-
-  const { user, isLegacyAuth } = authResult.context;
 
   // Get query parameter
   const query = searchParams.get("q") || "";
@@ -47,8 +49,33 @@ export async function GET(req: NextRequest) {
   // Sanitize input
   const sanitized = sanitizeInput(query);
   
-  // Rate limiting is already handled by the auth middleware
-  // The user's rate limit configuration is available in authResult.context.rateLimit
+  // Rate limiting: if authenticated, rely on auth middleware limiter (already executed there)
+  // If anonymous, apply a lightweight IP + query hash limit to prevent abuse
+  if (!authResult.success) {
+    try {
+      const redis = Redis.fromEnv();
+      // 30 requests / 5 minutes per IP
+      const anonLimiter = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(30, '5 m'),
+        prefix: 'rl:anon-search'
+      });
+      const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+      const rate = await anonLimiter.limit(ip);
+      if (!rate.success) {
+        return errorResponse(429, {
+          code: 'rate_limit_anon',
+          message: 'Too many anonymous requests. Please try again later or authenticate.',
+          details: '',
+          requestId,
+          timestamp
+        });
+      }
+    } catch (e) {
+      // Fallback: ignore rate limit errors silently to avoid blocking
+      console.warn('Anon rate limit check failed', e);
+    }
+  }
 
   try {
     // Get movie recommendations using AI
@@ -62,8 +89,8 @@ export async function GET(req: NextRequest) {
       total: movies.length,
       requestId,
       timestamp,
-      authMethod: isLegacyAuth ? 'api_key' : 'jwt',
-      userPlan: user.plan,
+  authMethod: authResult.success ? (isLegacyAuth ? 'api_key' : 'jwt') : 'anonymous',
+  userPlan: user.plan || 'free',
     };
 
     return NextResponse.json(response, { 
@@ -115,9 +142,20 @@ async function getMovieRecommendations(query: string) {
     throw new Error("TMDB API token not configured");
   }
 
+  // Determine model (allow override via env GEMINI_MODEL). Default to stable flash model.
+  let configuredModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  // Basic sanitization: remove accidental spaces / uppercase that cause 400
+  configuredModel = configuredModel.trim();
+  if (/\s/.test(configuredModel)) {
+    // If user inserted spaces like "Gemini 2.0 Flash-Lite", attempt to normalize or fallback.
+    const lowered = configuredModel.toLowerCase().replace(/\s+/g,'-');
+    // Accept only if it starts with gemini-
+    configuredModel = lowered.startsWith('gemini-') ? lowered : 'Gemini 2.5 Flash-Lite';
+  }
+
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: configuredModel,
     safetySettings: [
       {
         category: HarmCategory.HARM_CATEGORY_HARASSMENT,

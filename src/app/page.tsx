@@ -1,5 +1,4 @@
 "use client";
-import dotenv from "dotenv";
 import { Provider } from "@/components/ui/provider";
 import {
   Box,
@@ -49,7 +48,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  dotenv.config();
+  // Removed dotenv.config(); not needed client-side (Next.js only exposes NEXT_PUBLIC_*)
   ReactGA.initialize("G-3YKPKP74MD");
 
   async function run(prompt: string) {
@@ -64,33 +63,38 @@ export default function Home() {
     if (isLoading) return;
     setMovies([]);
     setIsLoading(true);
-    const promise = fetch("/api/search?q=" + prompt, {
+    const promise = fetch(`/api/search?q=${encodeURIComponent(prompt)}` , {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `${process.env.API_KEY}`,
       },
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error || data.code) {
-          const errorMsg = data.error || "An error occurred.";
-          setError(errorMsg);
-          toaster.create({
-            title: "Error",
-            description: errorMsg,
-          });
-        } else {
-          if (data.movies && data.movies.length === 0) {
-            setError("Sorry, we couldn't get any movie recommendations.");
-            toaster.create({
-              title: "No Recommendations",
-              description: "Sorry, we couldn't get any movie recommendations.",
-            });
-          } else {
-            setMovies(data.movies);
-          }
+      .then(async (response) => {
+        const json = await response.json().catch(()=>({ error: 'Invalid server response'}));
+        if (!response.ok) {
+          // Standardized error fields
+            const apiError = json.error || json.message || json.code || 'Request failed';
+            let description = typeof apiError === 'string' ? apiError : 'Request failed';
+            if (response.status === 401) {
+              description = 'You are not authorized. Provide an API key or sign in.';
+            }
+            setError(description);
+            toaster.create({ title: 'Error', description });
+            return;
         }
+        if (json.error || json.code) {
+          const errorMsg = typeof json.error === 'string' ? json.error : (json.error?.message || 'An error occurred');
+          setError(errorMsg);
+          toaster.create({ title: 'Error', description: errorMsg });
+          return;
+        }
+        const movieList = json.movies || [];
+        if (movieList.length === 0) {
+          setError("Sorry, we couldn't get any movie recommendations.");
+          toaster.create({ title: 'No Recommendations', description: 'Sorry, we could not get any movie recommendations.' });
+          return;
+        }
+        setMovies(movieList);
       });
     setLoading(true);
     await promise;
