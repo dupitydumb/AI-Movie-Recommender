@@ -18,7 +18,8 @@ async function ensureAdmin(req: NextRequest) {
   return { ok: false };
 }
 
-export async function POST(req: NextRequest, { params }: { params: { keyId: string } }) {
+// Use single-arg signature to avoid Next type inference issue; derive keyId from URL path
+export async function POST(req: NextRequest) {
   const headers = getCORSHeaders();
   const requestId = randomUUID();
   const timestamp = new Date().toISOString();
@@ -27,7 +28,16 @@ export async function POST(req: NextRequest, { params }: { params: { keyId: stri
     return NextResponse.json({ error: { code: 'forbidden', message: 'Admin access required', requestId, timestamp } }, { status: 403, headers });
   }
 
-  const keyId = params.keyId;
+  // Extract keyId from pathname: /api/admin/api-keys/[keyId]/issue-jwt
+  let keyId: string | null = null;
+  try {
+    const pathname = new URL(req.url).pathname;
+    const match = pathname.match(/api-keys\/([^/]+)\/issue-jwt$/);
+    if (match) keyId = match[1];
+  } catch {}
+  if (!keyId) {
+    return NextResponse.json({ error: { code: 'bad_request', message: 'Unable to parse keyId from path', requestId, timestamp } }, { status: 400, headers });
+  }
   const record = await apiKeyManager.get(keyId, true);
   if (!record) {
     return NextResponse.json({ error: { code: 'not_found', message: 'Key not found', requestId, timestamp } }, { status: 404, headers });
