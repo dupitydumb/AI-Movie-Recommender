@@ -147,12 +147,47 @@ export async function POST(request: NextRequest) {
             }
           });
         } else {
-          // Token has expired, clean it up
-          await redis.del(ipTokenKey);
+          // Token has expired, clean it up but keep IP tracking for 24-hour rate limit
+          // DO NOT delete ipTokenKey - it should persist for 24 hours regardless of token expiration
           await redis.del(`test_user:${tokenInfo.userId}`);
           if (tokenInfo.tokenId) {
             await redis.del(`test_token:${tokenInfo.tokenId}`);
             await redis.srem('active_test_tokens', tokenInfo.tokenId);
+          }
+          
+          // Check if 24 hours have passed since token generation
+          const tokenCreatedAt = new Date(tokenInfo.createdAt);
+          const twentyFourHoursLater = new Date(tokenCreatedAt.getTime() + 24 * 60 * 60 * 1000);
+          
+          if (now < twentyFourHoursLater) {
+            // Less than 24 hours since generation, deny new token
+            const timeUntilNextMs = twentyFourHoursLater.getTime() - now.getTime();
+            const hoursUntilNext = Math.ceil(timeUntilNextMs / (1000 * 60 * 60));
+            const minutesUntilNext = Math.ceil((timeUntilNextMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            return NextResponse.json({
+              success: false,
+              error: {
+                code: "daily_limit_reached",
+                message: "Daily token generation limit reached",
+                details: `You can only generate one test token per 24-hour period. Your previous token has expired, but you must wait ${hoursUntilNext}h ${minutesUntilNext}m before generating a new one.`,
+              },
+              limits: {
+                perDay: 1,
+                perIP: true,
+                validFor: '3 hours',
+                requestLimit: 100,
+                nextAllowed: twentyFourHoursLater.toISOString().split('T')[0],
+                timeUntilNext: {
+                  hours: hoursUntilNext,
+                  minutes: minutesUntilNext,
+                  totalMs: timeUntilNextMs,
+                }
+              }
+            }, { status: 429 });
+          } else {
+            // 24 hours have passed, clean up the IP tracking and allow new generation
+            await redis.del(ipTokenKey);
           }
         }
       }
@@ -194,7 +229,7 @@ export async function POST(request: NextRequest) {
     // Add the generated tokens to user data
     testUserData.tokens = tokens;
 
-    // Store the token info for IP tracking (expires at end of day)
+    // Store the token info for IP tracking (expires after 24 hours from generation)
     const ipTokenInfo = {
       userId: testUserId,
       tokenId: tokenId,
@@ -203,14 +238,9 @@ export async function POST(request: NextRequest) {
       ip: clientIP,
     };
 
-    // Calculate seconds until end of day for IP tracking expiry
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-    const secondsUntilEndOfDay = Math.ceil((endOfDay.getTime() - Date.now()) / 1000);
-
-    // Store IP token mapping (expires at end of day)
+    // Store IP token mapping (expires after exactly 24 hours from generation)
     await redis.set(ipTokenKey, JSON.stringify(ipTokenInfo), {
-      ex: secondsUntilEndOfDay,
+      ex: 24 * 60 * 60, // 24 hours
     });
 
     // Store test user data with tokens (expires when token expires - 3 hours)
