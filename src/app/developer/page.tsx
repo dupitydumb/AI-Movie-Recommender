@@ -92,28 +92,54 @@ export default function DeveloperPage() {
       });
 
       const data = await response.json();
+      console.log('Token generation response:', data); // Debug log
 
-      if (data.success) {
+      if (data.success && data.tokens) {
         setGeneratedKey({
           accessToken: data.tokens.accessToken,
           refreshToken: data.tokens.refreshToken,
-          expiresAt: data.user.expiresAt,
-          requestLimit: data.user.requestLimit,
-          user: data.user,
+          expiresAt: data.user?.expiresAt || new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+          requestLimit: data.user?.requestLimit || 100,
+          user: data.user || {
+            isTestUser: true,
+            requestLimit: 100,
+          },
         });
 
-        toaster.create({
-          title: "Test JWT Generated Successfully",
-          description: "Your test JWT token is ready for development use.",
-        });
+        if (data.isExistingToken) {
+          // This is an existing token being returned
+          const tokenInfo = data.tokenInfo;
+          const hours = tokenInfo?.timeRemaining?.hours || 0;
+          const minutes = tokenInfo?.timeRemaining?.minutes || 0;
+          
+          toaster.create({
+            title: "Existing Token Retrieved",
+            description: `Found your active token! ${hours}h ${minutes}m remaining. ${tokenInfo?.usage?.requestsRemaining || 0} requests left.`,
+          });
+        } else {
+          // This is a newly generated token
+          toaster.create({
+            title: "Test JWT Generated Successfully",
+            description: "Your test JWT token is ready for development use.",
+          });
+        }
       } else {
-        throw new Error(data.error || 'Failed to generate JWT token');
+        // Handle error cases
+        const errorMessage = data.error?.message || data.message || 'Failed to generate JWT token';
+        const errorDetails = data.error?.details || '';
+        
+        console.error('Token generation failed:', data);
+        
+        toaster.create({
+          title: "Generation Failed",
+          description: `${errorMessage}${errorDetails ? ': ' + errorDetails : ''}`,
+        });
       }
     } catch (error) {
       console.error('Error generating JWT:', error);
       toaster.create({
-        title: "Generation Failed",
-        description: "Failed to generate test JWT token. Please try again.",
+        title: "Network Error",
+        description: "Failed to communicate with server. Please check your connection and try again.",
       });
     } finally {
       setIsGenerating(false);
@@ -227,8 +253,24 @@ export default function DeveloperPage() {
                       <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
                         <Shield className="w-6 h-6 text-purple-400 flex-shrink-0" />
                         <div>
-                          <div className="font-semibold text-white">Full API Access</div>
-                          <div className="text-sm text-gray-400">All endpoints available</div>
+                          <div className="font-semibold text-white">1 Token Per Day</div>
+                          <div className="text-sm text-gray-400">Per IP address limit</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Important Notice */}
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-8">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-amber-400 mb-1">Token Generation Limits</h4>
+                          <div className="text-sm text-gray-300 space-y-1">
+                            <p>• Each IP address can generate only <strong>1 test token per day</strong></p>
+                            <p>• If you already have an active token, you cannot generate a new one</p>
+                            <p>• Tokens automatically expire after 3 hours or 100 requests</p>
+                            <p>• You can generate a new token tomorrow or after your current token expires</p>
+                          </div>
                         </div>
                       </div>
                     </div>

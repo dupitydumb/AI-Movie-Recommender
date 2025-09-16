@@ -9,7 +9,7 @@
 
 // Configuration
 const BASE_URL = 'http://localhost:3000/api'; // Change this to your deployed URL if needed
-const API_KEY = 'f2ed3c81c3mshb06c451b60d0839p1adfedjsndc972a640f37'; // Replace with your actual API key
+const API_KEY = '124124egq243663u534u'; // Replace with your actual API key
 const TEST_MOVIE_ID = '550'; // Fight Club - popular movie for testing
 
 // Color codes for console output
