@@ -1,12 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 import dotenv from "dotenv";
 import { authenticate, getCORSHeaders } from "@/lib/auth-middleware";
-import { randomUUID } from 'crypto';
 
 dotenv.config();
 
 export async function GET(req: NextRequest) {
-  const requestId = randomUUID();
+  const requestId = crypto.randomUUID();
   const timestamp = new Date().toISOString();
   const { searchParams } = new URL(req.url);
 

@@ -345,6 +345,252 @@ async function checkAPIHealth() {
 checkAPIHealth();`,
       },
     },
+    {
+      id: "jwt-login",
+      method: "POST",
+      path: "/api/auth/login",
+      title: "JWT Authentication - Login",
+      description: "Exchange your API key for JWT tokens. This provides enhanced security with stateless authentication, automatic token expiration, and refresh capabilities.",
+      parameters: [
+        {
+          name: "apiKey",
+          type: "string",
+          required: true,
+          location: "body",
+          description: "Your API key obtained from RapidAPI marketplace.",
+        },
+        {
+          name: "email",
+          type: "string",
+          required: false,
+          location: "body",
+          description: "Optional email address for user identification.",
+        },
+      ],
+      response: {
+        success: true,
+        data: {
+          accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          expiresIn: "24h",
+          tokenType: "Bearer",
+          user: {
+            userId: "user_12345678",
+            email: "user@example.com",
+            plan: "basic",
+            permissions: ["read", "search", "details"],
+            rateLimit: {
+              requests: 100,
+              window: "1h"
+            }
+          }
+        }
+      },
+      codeExamples: {
+        javascript: `// Login with API key to get JWT tokens
+const response = await fetch('https://screenpick.fun/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    apiKey: 'your_api_key_here',
+    email: 'your_email@example.com' // optional
+  })
+});
+
+const data = await response.json();
+
+if (data.success) {
+  console.log('Login successful!');
+  console.log('Access Token:', data.data.accessToken);
+  console.log('Refresh Token:', data.data.refreshToken);
+  console.log('User Plan:', data.data.user.plan);
+  
+  // Store tokens securely
+  localStorage.setItem('accessToken', data.data.accessToken);
+  localStorage.setItem('refreshToken', data.data.refreshToken);
+} else {
+  console.error('Login failed:', data.error.message);
+}`,
+        python: `import requests
+
+# Login with API key to get JWT tokens
+response = requests.post(
+    'https://screenpick.fun/api/auth/login',
+    headers={'Content-Type': 'application/json'},
+    json={
+        'apiKey': 'your_api_key_here',
+        'email': 'your_email@example.com'  # optional
+    }
+)
+
+data = response.json()
+
+if data['success']:
+    print('Login successful!')
+    print('Access Token:', data['data']['accessToken'])
+    print('User Plan:', data['data']['user']['plan'])
+    
+    # Store tokens securely
+    access_token = data['data']['accessToken']
+    refresh_token = data['data']['refreshToken']
+else:
+    print('Login failed:', data['error']['message'])`,
+      },
+    },
+    {
+      id: "jwt-refresh",
+      method: "POST",
+      path: "/api/auth/refresh",
+      title: "JWT Authentication - Refresh Token",
+      description: "Refresh your access token using a refresh token. This extends your session without requiring re-authentication with your API key.",
+      parameters: [
+        {
+          name: "refreshToken",
+          type: "string",
+          required: true,
+          location: "body",
+          description: "The refresh token obtained from the login endpoint.",
+        },
+      ],
+      response: {
+        success: true,
+        data: {
+          accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          expiresIn: "24h",
+          tokenType: "Bearer"
+        }
+      },
+      codeExamples: {
+        javascript: `// Refresh access token
+const refreshToken = localStorage.getItem('refreshToken');
+
+const response = await fetch('https://screenpick.fun/api/auth/refresh', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    refreshToken: refreshToken
+  })
+});
+
+const data = await response.json();
+
+if (data.success) {
+  console.log('Token refreshed successfully!');
+  
+  // Update stored tokens
+  localStorage.setItem('accessToken', data.data.accessToken);
+  localStorage.setItem('refreshToken', data.data.refreshToken);
+} else {
+  console.error('Token refresh failed:', data.error.message);
+  // Redirect to login
+}`,
+        python: `import requests
+
+# Refresh access token
+refresh_token = get_stored_refresh_token()  # Your storage method
+
+response = requests.post(
+    'https://screenpick.fun/api/auth/refresh',
+    headers={'Content-Type': 'application/json'},
+    json={'refreshToken': refresh_token}
+)
+
+data = response.json()
+
+if data['success']:
+    print('Token refreshed successfully!')
+    
+    # Update stored tokens
+    new_access_token = data['data']['accessToken']
+    new_refresh_token = data['data']['refreshToken']
+    store_tokens(new_access_token, new_refresh_token)
+else:
+    print('Token refresh failed:', data['error']['message'])
+    # Handle re-authentication`,
+      },
+    },
+    {
+      id: "jwt-validate",
+      method: "GET",
+      path: "/api/auth/validate",
+      title: "JWT Authentication - Validate Token",
+      description: "Validate your JWT token and retrieve user information. Use this to check if your token is still valid and get current user details.",
+      parameters: [
+        {
+          name: "Authorization",
+          type: "string",
+          required: true,
+          location: "header",
+          description: "Bearer token for authentication (Authorization: Bearer YOUR_JWT_TOKEN).",
+        },
+      ],
+      response: {
+        success: true,
+        data: {
+          valid: true,
+          user: {
+            userId: "user_12345678",
+            email: "user@example.com",
+            plan: "basic",
+            permissions: ["read", "search", "details"],
+            rateLimit: {
+              requests: 100,
+              window: "1h"
+            }
+          },
+          isLegacyAuth: false,
+          expiresAt: "2025-09-17T12:00:00.000Z"
+        }
+      },
+      codeExamples: {
+        javascript: `// Validate JWT token
+const accessToken = localStorage.getItem('accessToken');
+
+const response = await fetch('https://screenpick.fun/api/auth/validate', {
+  method: 'GET',
+  headers: {
+    'Authorization': \`Bearer \${accessToken}\`,
+    'Content-Type': 'application/json',
+  }
+});
+
+const data = await response.json();
+
+if (data.success && data.data.valid) {
+  console.log('Token is valid!');
+  console.log('User ID:', data.data.user.userId);
+  console.log('Plan:', data.data.user.plan);
+  console.log('Expires at:', data.data.expiresAt);
+} else {
+  console.error('Token validation failed');
+  // Redirect to login or refresh token
+}`,
+        python: `import requests
+
+# Validate JWT token
+access_token = get_stored_access_token()  # Your storage method
+
+response = requests.get(
+    'https://screenpick.fun/api/auth/validate',
+    headers={'Authorization': f'Bearer {access_token}'}
+)
+
+data = response.json()
+
+if data['success'] and data['data']['valid']:
+    print('Token is valid!')
+    print('User ID:', data['data']['user']['userId'])
+    print('Plan:', data['data']['user']['plan'])
+else:
+    print('Token validation failed')
+    # Handle token refresh or re-authentication`,
+      },
+    },
   ];
 
   return (
@@ -514,22 +760,32 @@ checkAPIHealth();`,
             <h2 className="text-2xl font-bold mb-6 text-white">Authentication</h2>
             <div className="prose prose-invert max-w-none space-y-6">
               <p className="text-gray-300 leading-relaxed">
-                The Screenpick API uses API key authentication to ensure secure access to our services. 
-                All API requests require a valid API key that identifies your application and tracks usage 
-                against your plan limits.
+                The Screenpick API supports both JWT-based authentication and traditional API key authentication. 
+                We recommend using JWT tokens for enhanced security, session management, and better integration 
+                with modern applications. All API requests require valid authentication.
               </p>
+
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 mb-6">
+                <h4 className="text-blue-400 font-semibold mb-2 flex items-center gap-2">
+                  🔑 New: JWT Authentication
+                </h4>
+                <p className="text-blue-100 text-sm">
+                  We now support JWT (JSON Web Token) authentication for enhanced security and better session management. 
+                  JWT tokens provide stateless authentication with automatic expiration and refresh capabilities.
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                 <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
                   <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    Getting Your API Key
+                    Getting Started
                   </h4>
                   <ol className="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                    <li>Visit <a href="https://rapidapi.com/AirFU/api/ai-movie-recommender" className="text-red-400 hover:text-red-300 underline break-words" target="_blank" rel="noopener noreferrer">RapidAPI Marketplace</a></li>
-                    <li>Create a free RapidAPI account or sign in</li>
-                    <li>Subscribe to the Screenpick API plan that fits your needs</li>
-                    <li>Copy your unique API key from the dashboard</li>
+                    <li>Get your API key from <a href="https://rapidapi.com/AirFU/api/ai-movie-recommender" className="text-red-400 hover:text-red-300 underline break-words" target="_blank" rel="noopener noreferrer">RapidAPI</a></li>
+                    <li>Exchange API key for JWT tokens via <code>/api/auth/login</code></li>
+                    <li>Use JWT tokens for API requests</li>
+                    <li>Refresh tokens when needed via <code>/api/auth/refresh</code></li>
                   </ol>
                 </div>
                 <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6">
@@ -538,14 +794,59 @@ checkAPIHealth();`,
                     Authentication Methods
                   </h4>
                   <ul className="text-gray-300 text-sm space-y-2">
-                    <li><strong>Authorization Header:</strong> Bearer token (recommended)</li>
-                    <li><strong>X-RapidAPI-Key Header:</strong> Direct API key</li>
-                    <li><strong>Query Parameter:</strong> apiKey parameter (for testing only)</li>
+                    <li><strong>JWT Bearer Token:</strong> Modern, secure (recommended)</li>
+                    <li><strong>API Key Header:</strong> Traditional method</li>
+                    <li><strong>X-RapidAPI-Key:</strong> RapidAPI integration</li>
+                    <li><strong>Query Parameter:</strong> For testing only</li>
                   </ul>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-4">Authentication Methods</h3>
+              <h3 className="text-xl font-bold text-white mb-4">JWT Authentication Flow</h3>
+              
+              <div className="space-y-4">
+                <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-4">
+                  <h4 className="text-lg font-semibold text-white mb-2">Step 1: Login with API Key</h4>
+                  <p className="text-gray-300 text-sm mb-3">
+                    Exchange your API key for JWT tokens by calling the login endpoint:
+                  </p>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-600 overflow-x-auto">
+                    <code className="text-green-400 font-mono text-sm">POST /api/auth/login</code>
+                  </div>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-600 overflow-x-auto mt-2">
+                    <pre className="text-green-400 font-mono text-sm">{`{
+  "apiKey": "your_api_key_here"
+}`}</pre>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-4">
+                  <h4 className="text-lg font-semibold text-white mb-2">Step 2: Use JWT Token</h4>
+                  <p className="text-gray-300 text-sm mb-3">
+                    Include the JWT token in your API requests:
+                  </p>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-600 overflow-x-auto">
+                    <code className="text-green-400 font-mono text-sm">Authorization: Bearer your_jwt_token</code>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-4">
+                  <h4 className="text-lg font-semibold text-white mb-2">Step 3: Refresh When Needed</h4>
+                  <p className="text-gray-300 text-sm mb-3">
+                    Refresh your access token using the refresh token:
+                  </p>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-600 overflow-x-auto">
+                    <code className="text-green-400 font-mono text-sm">POST /api/auth/refresh</code>
+                  </div>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-600 overflow-x-auto mt-2">
+                    <pre className="text-green-400 font-mono text-sm">{`{
+  "refreshToken": "your_refresh_token"
+}`}</pre>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-white mb-4">Legacy Authentication Methods</h3>
               
               <div className="space-y-4">
                 <div className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-4">

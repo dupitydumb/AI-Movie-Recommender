@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Search, BookOpen, Home, Users, KeyRound } from "lucide-react";
+import { Film, Menu, X, Search, BookOpen, Home } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
@@ -26,18 +26,17 @@ export function Header() {
           aria-label="Movie Recommender Home"
         >
           <motion.div
-            whileHover={{ rotate: 12, scale: 1.05 }}
+            whileHover={{ rotate: 12 }}
             transition={{ duration: 0.3 }}
-            className="relative p-2.5 bg-gradient-to-br from-red-500/20 via-red-500/15 to-purple-500/20 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/10"
+            className="p-2 bg-red-500/20 rounded-xl border border-red-500/30"
           >
             <Film className="h-6 w-6 text-red-400" />
-            <div className="absolute inset-0 bg-red-500/5 rounded-xl blur-sm" />
           </motion.div>
           <div className="flex flex-col">
-            <span className="font-bold text-xl bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent tracking-tight">
+            <span className="font-bold text-xl text-white tracking-tight">
               Screenpick
             </span>
-            <span className="text-xs text-red-400/70 -mt-0.5 font-medium tracking-wide uppercase">
+            <span className="text-xs text-gray-400 -mt-1">
               AI-Powered Discovery
             </span>
           </div>
@@ -46,58 +45,31 @@ export function Header() {
         {/* Desktop Navigation - Minimal Chrome */}
         <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
           {navLinks.map((link) => (
-            <div key={link.href} className="relative">
-              <Link
-                href={link.href}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 font-medium group overflow-hidden ${
-                  pathname === link.href
-                    ? "bg-red-500/15 text-red-400 border border-red-500/25 shadow-sm shadow-red-500/10"
-                    : "text-gray-300 hover:text-white hover:bg-gray-800/40"
-                }`}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative">{link.icon}</span>
-                <span className="relative">{link.label}</span>
-              </Link>
-              {pathname === link.href && (
-                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-red-400 rounded-full" />
-              )}
-            </div>
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium ${
+                pathname === link.href
+                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800/50"
+              }`}
+            >
+              {link.icon}
+              {link.label}
+            </Link>
           ))}
           
           {/* Primary CTA - Accent Red */}
           <Button
             asChild
-            className="ml-6 bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 focus:ring-2 focus:ring-red-500/40 focus:outline-none transform hover:scale-[1.02] min-h-[44px]"
+            className="ml-6 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-red-500/50 min-h-[44px]"
           >
             <a
               href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Get API Access on RapidAPI"
             >
-              <span className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4" />
-                Get API Access
-              </span>
-            </a>
-          </Button>
-          {/* Community CTA */}
-          <Button
-            asChild
-            variant="outline"
-            className="ml-3 bg-gray-800/70 border border-gray-700/60 hover:border-red-500/40 hover:bg-gray-800/90 text-gray-300 hover:text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 focus:ring-2 focus:ring-red-500/30 focus:outline-none min-h-[44px]"
-          >
-            <a
-              href="https://discord.gg/raesB7TKzt"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Join Community Discord Server"
-            >
-              <span className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Join Community
-              </span>
+              Get API Access
             </a>
           </Button>
         </nav>
@@ -144,74 +116,46 @@ export function Header() {
                 </div>
 
                 {/* Mobile Navigation Links */}
-                <nav className="flex-1 px-6 py-12 space-y-1">
-                  <div className="space-y-1 pb-6 border-b border-gray-800/50 mb-6">
-                    {navLinks.map((link, index) => (
-                      <motion.div
-                        key={link.href}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="relative"
+                <nav className="flex-1 px-6 py-8 space-y-2">
+                  {navLinks.map((link, index) => (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        href={link.href}
+                        className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 text-lg font-medium min-h-[44px] ${
+                          pathname === link.href
+                            ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                            : "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
                       >
-                        <Link
-                          href={link.href}
-                          className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 text-lg font-medium min-h-[56px] overflow-hidden group ${
-                            pathname === link.href
-                              ? "bg-red-500/15 text-red-400 border border-red-500/25 shadow-sm shadow-red-500/10"
-                              : "text-gray-300 hover:text-white hover:bg-gray-800/40"
-                          }`}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <span className="relative">{link.icon}</span>
-                          <span className="relative">{link.label}</span>
-                        </Link>
-                        {pathname === link.href && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-red-400 rounded-full" />
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
+                        {link.icon}
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
                   
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: navLinks.length * 0.1 }}
-                    className="space-y-4"
+                    className="pt-6"
                   >
                     <Button
                       asChild
-                      className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 hover:from-red-600 hover:via-pink-600 hover:to-purple-600 text-white font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 transform hover:scale-[1.02] min-h-[56px]"
+                      className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 min-h-[44px]"
                     >
                       <a
                         href="https://rapidapi.com/AirFU/api/ai-movie-recommender"
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsMenuOpen(false)}
-                        aria-label="Get API Access on RapidAPI"
                       >
-                        <span className="flex items-center justify-center gap-2">
-                          <KeyRound className="w-5 h-5" />
-                          Get API Access
-                        </span>
-                      </a>
-                    </Button>
-                    <Button
-                      asChild
-                      className="w-full bg-gray-800/70 border border-gray-700/70 hover:border-red-500/40 hover:bg-gray-800/90 text-gray-300 hover:text-white font-semibold py-4 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-red-500/20 min-h-[56px]"
-                    >
-                      <a
-                        href="https://discord.gg/raesB7TKzt"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setIsMenuOpen(false)}
-                        aria-label="Join Community Discord Server"
-                      >
-                        <span className="flex items-center justify-center gap-2">
-                          <Users className="w-5 h-5" />
-                          Join Community
-                        </span>
+                        Get API Access
                       </a>
                     </Button>
                   </motion.div>

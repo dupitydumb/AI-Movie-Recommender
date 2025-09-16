@@ -1,60 +1,65 @@
 import { NextResponse, NextRequest } from "next/server";
 import dotenv from "dotenv";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { authenticate, getCORSHeaders } from "@/lib/auth-middleware";
+import { randomUUID } from 'crypto';
 
 dotenv.config();
 
-let ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(100, "1 m"),
-  analytics: true,
-  prefix: "@upstash/ratelimit",
-});
-
 export async function GET(req: NextRequest) {
-  // Add CORS headers for cross-origin requests
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
-  };
-
+  const requestId = randomUUID();
+  const timestamp = new Date().toISOString();
   const { searchParams } = new URL(req.url);
-  const authHeader =
-    req.headers.get("Authorization") ||
-    searchParams.get("apiKey") ||
-    req.headers.get("X-RapidAPI-Key");
 
-  if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+  // Use new auth middleware for hybrid authentication
+  const authResult = await authenticate(req, {
+    requireAuth: true,
+    permissions: ['read', 'details'],
+  });
+
+  if (!authResult.success) {
+    return authResult.response;
   }
 
-  const allowedToken = (await Redis.fromEnv().hget(authHeader, "token")) || "";
-  
-  if (authHeader !== allowedToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
-  }
+  const { user, isLegacyAuth } = authResult.context;
 
-  if (authHeader == process.env.API_KEY_TEST) {
-    ratelimit = new Ratelimit({
-      redis: Redis.fromEnv(),
-      limiter: Ratelimit.slidingWindow(15, "60 m"),
-      analytics: true,
-      prefix: "@upstash/ratelimit",
-    });
-  }
-
-  const { success } = await ratelimit.limit("details");
-  if (!success) {
-    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429, headers });
-  }
-
+  // Get movie ID parameter
   const movieId = searchParams.get("id");
+  if (!movieId) {
+    return NextResponse.json(
+      { 
+        success: false,
+        error: {
+          code: "missing_parameter",
+          message: "Movie ID is required",
+          details: "Provide a movie ID in the 'id' query parameter",
+          requestId,
+          timestamp
+        }
+      }, 
+      { status: 400, headers: getCORSHeaders() }
+    );
+  }
+
+  // Validate movie ID format
+  if (!/^\d+$/.test(movieId)) {
+    return NextResponse.json(
+      { 
+        success: false,
+        error: {
+          code: "invalid_parameter",
+          message: "Invalid movie ID format",
+          details: "Movie ID must be a numeric value",
+          requestId,
+          timestamp
+        }
+      }, 
+      { status: 400, headers: getCORSHeaders() }
+    );
+  }
+
+  // Get optional parameters
   const language = searchParams.get("language") || "en-US";
-  
-  // Parse append_to_response parameter for additional data
-  const appendToResponse = searchParams.get("append_to_response");
+  const appendToResponse = searchParams.get("append_to_response") || "";
   let appendItems: string[] = [];
   
   if (appendToResponse) {
@@ -69,38 +74,80 @@ export async function GET(req: NextRequest) {
     
     const invalidOptions = appendItems.filter(item => !validAppendOptions.includes(item));
     if (invalidOptions.length > 0) {
-      return NextResponse.json({ 
-        error: `Invalid append_to_response options: ${invalidOptions.join(", ")}. Valid options: ${validAppendOptions.join(", ")}` 
-      }, { status: 400, headers });
+      return NextResponse.json(
+        { 
+          success: false,
+          error: {
+            code: "invalid_parameter",
+            message: "Invalid append_to_response options",
+            details: `Invalid options: ${invalidOptions.join(", ")}. Valid options: ${validAppendOptions.join(", ")}`,
+            requestId,
+            timestamp
+          }
+        }, 
+        { status: 400, headers: getCORSHeaders() }
+      );
     }
   }
 
-  if (!movieId) {
-    return NextResponse.json({ 
-      error: "Movie ID is required" 
-    }, { status: 400, headers });
-  }
+  try {
+    const movieDetails = await getMovieDetails(movieId, language, appendItems);
+    
+    if (movieDetails.error) {
+      const status = movieDetails.error === "Movie not found" ? 404 : 500;
+      return NextResponse.json(
+        { 
+          success: false,
+          error: {
+            code: movieDetails.error === "Movie not found" ? "movie_not_found" : "tmdb_error",
+            message: movieDetails.error,
+            details: movieDetails.details || `Failed to fetch details for movie ID: ${movieId}`,
+            requestId,
+            timestamp
+          }
+        }, 
+        { status, headers: getCORSHeaders() }
+      );
+    }
 
-  // Validate movie ID is numeric
-  if (!/^\d+$/.test(movieId)) {
-    return NextResponse.json({ 
-      error: "Movie ID must be a valid number" 
-    }, { status: 400, headers });
-  }
+    const response = {
+      success: true,
+      data: movieDetails,
+      requestId,
+      timestamp,
+      authMethod: isLegacyAuth ? 'api_key' : 'jwt',
+      userPlan: user.plan,
+    };
 
-  const result = await getMovieDetails(movieId, language, appendItems);
-  return NextResponse.json(result, { headers });
+    return NextResponse.json(response, { 
+      status: 200, 
+      headers: getCORSHeaders() 
+    });
+
+  } catch (error) {
+    console.error('Movie details error:', error);
+    
+    return NextResponse.json(
+      { 
+        success: false,
+        error: {
+          code: "details_fetch_failed",
+          message: "Failed to fetch movie details",
+          details: "An unexpected error occurred while fetching movie details",
+          requestId,
+          timestamp
+        }
+      }, 
+      { status: 500, headers: getCORSHeaders() }
+    );
+  }
 }
 
 // Add OPTIONS handler for preflight requests
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
-    },
+    headers: getCORSHeaders(),
   });
 }
 
