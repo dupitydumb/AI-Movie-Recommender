@@ -92,7 +92,7 @@ export default function DeveloperPage() {
       });
 
       const data = await response.json();
-      console.log('Token generation response:', data); // Debug log
+      // Debug log
 
       if (data.success && data.tokens) {
         setGeneratedKey({
@@ -169,10 +169,87 @@ export default function DeveloperPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
         <SeoSchema />
         <Head>
-          <title>Developer Portal - Screenpick API</title>
+          <title>Developer Portal - No.1 Free Movie Recommendation API | Screenpick</title>
           <meta
             name="description"
-            content="Generate test JWT tokens for Screenpick API development. Get started with our movie recommendation API in minutes."
+            content="Generate test JWT tokens for Screenpick API - the #1 free AI-powered movie recommendation API. Get instant access to 100+ free requests, 3-hour test tokens, and comprehensive developer tools."
+          />
+          <meta
+            name="keywords"
+            content="free movie API, movie recommendation API, JWT token generator, developer portal, AI movie API, free API testing, movie database API, film recommendation API, Screenpick API"
+          />
+          <meta name="author" content="Screenpick" />
+          <meta name="robots" content="index, follow" />
+          
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content="https://screenpick.fun/developer" />
+          <meta property="og:title" content="Developer Portal - No.1 Free Movie Recommendation API | Screenpick" />
+          <meta property="og:description" content="Generate test JWT tokens for Screenpick API - the #1 free AI-powered movie recommendation API. Get instant access to 100+ free requests and comprehensive developer tools." />
+          <meta property="og:image" content="https://screenpick.fun/og-image.jpg" />
+          <meta property="og:site_name" content="Screenpick" />
+          
+          {/* Twitter */}
+          <meta property="twitter:card" content="summary_large_image" />
+          <meta property="twitter:url" content="https://screenpick.fun/developer" />
+          <meta property="twitter:title" content="Developer Portal - No.1 Free Movie Recommendation API | Screenpick" />
+          <meta property="twitter:description" content="Generate test JWT tokens for Screenpick API - the #1 free AI-powered movie recommendation API. Get instant access to 100+ free requests." />
+          <meta property="twitter:image" content="https://screenpick.fun/og-image.jpg" />
+          
+          {/* Additional SEO */}
+          <meta name="theme-color" content="#1f2937" />
+          <link rel="canonical" href="https://screenpick.fun/developer" />
+          
+          {/* JSON-LD Structured Data */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": "Developer Portal - Screenpick API",
+                "description": "Generate test JWT tokens for Screenpick API - the #1 free AI-powered movie recommendation API",
+                "url": "https://screenpick.fun/developer",
+                "mainEntity": {
+                  "@type": "SoftwareApplication",
+                  "name": "Screenpick API",
+                  "description": "No.1 free AI-powered movie recommendation API with JWT authentication",
+                  "applicationCategory": "DeveloperApplication",
+                  "operatingSystem": "Web",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD",
+                    "description": "Free API access with test tokens"
+                  },
+                  "featureList": [
+                    "AI-powered movie recommendations",
+                    "JWT authentication",
+                    "100 free requests per token",
+                    "3-hour test token validity",
+                    "RESTful API endpoints",
+                    "Real-time movie data"
+                  ]
+                },
+                "breadcrumb": {
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://screenpick.fun"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "Developer Portal",
+                      "item": "https://screenpick.fun/developer"
+                    }
+                  ]
+                }
+              })
+            }}
           />
         </Head>
         
@@ -197,19 +274,19 @@ export default function DeveloperPage() {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-medium mb-6">
                   <Code2 className="w-4 h-4" />
-                  Developer Portal
+                  #1 Free Movie API • Developer Portal
                 </div>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
                   <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                    Start Building with
+                    Build with the
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-green-400 bg-clip-text text-transparent">
-                    Screenpick API
+                    No.1 Free Movie API
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                  Generate test JWT tokens instantly and start integrating our AI-powered movie recommendation API into your applications.
+                  Generate test JWT tokens instantly and start integrating our <strong className="text-white">AI-powered movie recommendation API</strong> into your applications. <span className="text-blue-400">100% free</span> for testing and development.
                 </p>
               </motion.div>
 
@@ -227,10 +304,10 @@ export default function DeveloperPage() {
                         <Key className="w-8 h-8 text-blue-400" />
                       </div>
                       <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                        Generate Test JWT Token
+                        Generate Free Test JWT Token
                       </h2>
                       <p className="text-gray-400 text-lg">
-                        Get instant access to our API for testing and development purposes.
+                        Get instant access to our <span className="text-blue-400 font-semibold">#1 free movie API</span> for testing and development purposes.
                       </p>
                     </div>
 
@@ -263,7 +340,7 @@ export default function DeveloperPage() {
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-8">
                       <div className="flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                        <div>
+                        <div className="flex-1 text-center">
                           <h4 className="font-semibold text-amber-400 mb-1">Token Generation Limits</h4>
                           <div className="text-sm text-gray-300 space-y-1">
                             <p>• Each IP address can generate only <strong>1 test token per day</strong></p>
@@ -493,8 +570,8 @@ console.log(data.movies);`}
                     <div className="text-center">
                       <Button
                         onClick={() => setGeneratedKey(null)}
-                        variant="outline"
-                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                        size="lg"
+                        className="px-6 py-3 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-gray-500/50"
                       >
                         Generate Another Token
                       </Button>

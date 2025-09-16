@@ -36,7 +36,6 @@ export default function WatchMoviePage() {
       try {
         setIsLoading(true);
         const apiKey = process.env.TMDB;
-        console.log("API Key:", apiKey);
         const url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`;
         const options = {
           method: 'GET',
@@ -60,10 +59,6 @@ export default function WatchMoviePage() {
             imageUrl: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : "/placeholder-movie.jpg",
             duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
           };
-
-          console.log("Movie Data:", movieData);
-          console.log("Image URL:", movieData.imageUrl);
-
           setMovie(movieData);
 
           // Fetch watch providers
@@ -78,9 +73,6 @@ export default function WatchMoviePage() {
 
           const watchProvidersResponse = await fetch(watchProvidersUrl, watchProvidersOptions);
           const watchProvidersData = await watchProvidersResponse.json();
-
-          console.log("Watch Providers:", watchProvidersData);
-
           setWatchProviders(watchProvidersData);
 
           // Fetch similar movies
@@ -95,9 +87,6 @@ export default function WatchMoviePage() {
 
           const similarMoviesResponse = await fetch(similarMoviesUrl, similarMoviesOptions);
           const similarMoviesData = await similarMoviesResponse.json();
-
-          console.log("Similar Movies:", similarMoviesData);
-
           setSimilarMovies(similarMoviesData.results);
 
         } catch (err: any) {

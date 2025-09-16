@@ -16,8 +16,6 @@ export async function POST(request: NextRequest) {
                     request.headers.get('cf-connecting-ip') || 
                     '127.0.0.1';
 
-    console.log(`Token generation request from IP: ${clientIP}`);
-
     // Check if this IP already has an active token today
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     const ipTokenKey = `daily_token:${today}:${clientIP}`;
@@ -94,8 +92,7 @@ export async function POST(request: NextRequest) {
                   ex: 3 * 60 * 60, // 3 hours
                 });
                 
-                console.log(`Regenerated missing tokens for user: ${tokenInfo.userId}`);
-              } catch (tokenError) {
+                } catch (tokenError) {
                 console.error('Failed to regenerate tokens:', tokenError);
                 actualTokens = null;
               }
@@ -231,8 +228,6 @@ export async function POST(request: NextRequest) {
     await redis.expire('active_test_tokens', 24 * 60 * 60); // 24 hours
 
     // Log successful generation
-    console.log(`New test token generated: ${tokenId} for IP: ${clientIP}`);
-
     return NextResponse.json({
       success: true,
       tokens,
@@ -401,8 +396,6 @@ export async function DELETE(request: NextRequest) {
 
     // Add to blacklist
     await jwtManager.revokeToken(token);
-
-    console.log(`Test token revoked: ${decoded.userId}`);
 
     return NextResponse.json({
       success: true,

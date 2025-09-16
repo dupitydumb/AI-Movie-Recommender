@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Film, Menu, X, Search, BookOpen, Home } from "lucide-react";
+import { Film, Menu, X, Search, BookOpen, Home, Code } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { href: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
   { href: "/docs", label: "API Docs", icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/developer", label: "Developer", icon: <Code className="w-4 h-4" /> },
 ];
 
 export function Header() {

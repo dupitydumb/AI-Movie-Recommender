@@ -84,7 +84,6 @@ const response = await fetch('https://screenpick.fun/api/search?q=romantic%20com
 const data = await response.json();
 
 if (data.movies) {
-  console.log('Found', data.movies.length, 'recommendations');
   data.movies.forEach(movie => {
     console.log(\`\${movie.title} (\${movie.release_date?.split('-')[0]})\`);
   });
@@ -132,7 +131,6 @@ async function getMovieRecommendations(query) {
     const { movies } = response.data;
     
     if (movies && movies.length > 0) {
-      console.log(\`🎬 Found \${movies.length} movie recommendations:\`);
       movies.forEach((movie, index) => {
         const year = movie.release_date?.split('-')[0] || 'Unknown';
         const rating = movie.vote_average ? \`⭐ \${movie.vote_average}/10\` : '';
@@ -140,7 +138,6 @@ async function getMovieRecommendations(query) {
       });
       return movies;
     } else {
-      console.log('No recommendations found for your query.');
       return [];
     }
   } catch (error) {
@@ -204,12 +201,7 @@ const response = await fetch('https://screenpick.fun/api/getID?title=La%20La%20L
 const movies = await response.json();
 
 if (Array.isArray(movies) && !movies[0]?.error) {
-  console.log('Found matching movies:');
   movies.forEach(movie => {
-    console.log(\`Title: \${movie.title}\`);
-    console.log(\`TMDb ID: \${movie.tmdb}\`);
-    console.log(\`IMDb ID: \${movie.imdb}\`);
-    console.log('---');
   });
 } else {
   console.error('Movie not found or error occurred');
@@ -259,14 +251,10 @@ async function getMovieIDs(title) {
       console.log(\`🎬 Found \${movies.length} matching movie(s) for "\${title}":\`);
       
       movies.forEach((movie, index) => {
-        console.log(\`\n\${index + 1}. \${movie.title}\`);
-        console.log(\`   TMDb: https://www.themoviedb.org/movie/\${movie.tmdb}\`);
-        console.log(\`   IMDb: https://www.imdb.com/title/\${movie.imdb}\`);
       });
       
       return movies;
     } else {
-      console.log(\`❌ No movies found for "\${title}"\`);
       return [];
     }
   } catch (error) {
@@ -300,9 +288,7 @@ const response = await fetch('https://screenpick.fun/api/ping');
 const status = await response.json();
 
 if (status.status === 'ok') {
-  console.log('✅ API is healthy and running');
 } else {
-  console.log('❌ API might be experiencing issues');
 }`,
         python: `import requests
 
@@ -329,10 +315,8 @@ async function checkAPIHealth() {
     });
     
     if (response.data.status === 'ok') {
-      console.log('✅ API is healthy and running');
       return true;
     } else {
-      console.log('❌ API returned unexpected status:', response.data);
       return false;
     }
   } catch (error) {
@@ -402,11 +386,6 @@ const response = await fetch('https://screenpick.fun/api/auth/login', {
 const data = await response.json();
 
 if (data.success) {
-  console.log('Login successful!');
-  console.log('Access Token:', data.data.accessToken);
-  console.log('Refresh Token:', data.data.refreshToken);
-  console.log('User Plan:', data.data.user.plan);
-  
   // Store tokens securely
   localStorage.setItem('accessToken', data.data.accessToken);
   localStorage.setItem('refreshToken', data.data.refreshToken);
@@ -480,8 +459,6 @@ const response = await fetch('https://screenpick.fun/api/auth/refresh', {
 const data = await response.json();
 
 if (data.success) {
-  console.log('Token refreshed successfully!');
-  
   // Update stored tokens
   localStorage.setItem('accessToken', data.data.accessToken);
   localStorage.setItem('refreshToken', data.data.refreshToken);
@@ -562,10 +539,6 @@ const response = await fetch('https://screenpick.fun/api/auth/validate', {
 const data = await response.json();
 
 if (data.success && data.data.valid) {
-  console.log('Token is valid!');
-  console.log('User ID:', data.data.user.userId);
-  console.log('Plan:', data.data.user.plan);
-  console.log('Expires at:', data.data.expiresAt);
 } else {
   console.error('Token validation failed');
   // Redirect to login or refresh token
@@ -1554,7 +1527,6 @@ async function apiRequest(url, config = {}) {
           throw new Error('Unauthorized: Check your API key');
         case 429:
           const retryAfter = error.response.headers['retry-after'] || 60;
-          console.log(\`Rate limited. Retrying after \${retryAfter} seconds...\`);
           await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
           return apiRequest(url, config); // Retry
         case 500:
@@ -1574,7 +1546,6 @@ async function apiRequest(url, config = {}) {
               </div>
             </div>
           </section>
-
 
           {/* Get API Key CTA */}
           <div className="bg-gradient-to-r from-red-900/30 via-purple-900/30 to-pink-900/30 border border-red-500/30 rounded-2xl p-8 text-center backdrop-blur-sm">

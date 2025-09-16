@@ -158,9 +158,6 @@ async function getMovieRecommendations(query: string) {
     if (!Array.isArray(movieTitles)) {
       throw new Error("AI returned invalid format");
     }
-
-    console.log('AI recommended titles:', movieTitles);
-
     // Step 2: Search each title on TMDB and collect results
     const allMovies = [];
     const searchPromises = movieTitles.slice(0, 10).map(async (title: string) => {
@@ -218,8 +215,6 @@ async function getMovieRecommendations(query: string) {
     const finalMovies = Array.from(movieMap.values())
       .sort((a, b) => b.popularity - a.popularity) // Sort by popularity
       .slice(0, 10); // Limit to 10 results
-
-    console.log(`Found ${finalMovies.length} movies after TMDB search`);
     return finalMovies;
 
   } catch (error) {

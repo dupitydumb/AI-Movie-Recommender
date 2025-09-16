@@ -7,7 +7,6 @@ const NetworkBackground = () => {
 
  useEffect(() => {
     setIsClient(true);
-    console.log("NetworkBackground component mounted - useEffect");
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -76,9 +75,6 @@ function updatePoints() {
       for (let i = 0; i < numPoints; i++) {
         points[i].x += points[i].speedX;
         points[i].y += points[i].speedY;
-
-        console.log(`Point ${i}: x=${points[i].x}, y=${points[i].y}`);
-
         if (points[i].x < 0 || points[i].x > width) {
           points[i].speedX *= -1;
         }
@@ -89,7 +85,6 @@ function updatePoints() {
     }
 
 function animate() {
-      console.log("animate function called");
       updatePoints();
       drawLines();
       requestAnimationFrame(animate);

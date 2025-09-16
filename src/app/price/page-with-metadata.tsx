@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { generatePageMetadata } from "@/lib/metadata";
 
-
 export const metadata: Metadata = generatePageMetadata({
   title: "Pricing Plans - AI Movie Recommendation API",
   description: "Choose the perfect plan for your movie recommendation needs. From free personal use to enterprise solutions with our AI-powered movie suggestion API.",

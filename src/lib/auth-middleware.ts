@@ -329,7 +329,6 @@ export class AuthMiddleware {
         // Check if they've exceeded their limit
         if (testUser.requestCount >= testUser.requestLimit) {
           testUser.exhausted = true;
-          console.log(`Test user ${userId} has exhausted their request limit`);
         }
         
         // Store updated data back to Redis with original expiry
@@ -337,8 +336,6 @@ export class AuthMiddleware {
         await this.redis.set(`test_user:${userId}`, JSON.stringify(testUser), {
           ex: Math.max(remainingTTL, 60), // At least 60 seconds remaining
         });
-        
-        console.log(`Updated test user ${userId} usage: ${testUser.requestCount}/${testUser.requestLimit}`);
       }
     } catch (error) {
       console.error('Failed to update test user usage:', error);
