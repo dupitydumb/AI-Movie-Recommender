@@ -23,9 +23,9 @@ export default function QuickstartContent() {
   const baseUrl = "https://screenpick.fun/api";
   const curlPing = `curl -s ${baseUrl}/ping`;
   const curlSearch = `curl -s -H "Authorization: Bearer YOUR_API_KEY" \n  "${baseUrl}/search?q=classic+space+adventure"`;
-  const jsFetch = `const res = await fetch('${baseUrl}/search?q=thrilling+heist', {\n  headers: {\n    Authorization: 'Bearer YOUR_API_KEY'\n  }\n});\nconst data = await res.json();\nconsole.log(data.results[0]);`;
-  const nodeAxios = `import axios from 'axios';\n\nconst client = axios.create({\n  baseURL: '${baseUrl}',\n  headers: { Authorization: 'Bearer ' + process.env.SCREENPICK_API_KEY }\n});\n\n(async () => {\n  const { data } = await client.get('/search', { params: { q: 'feel good animated movies' }});\n  console.log(data.results.map(m => m.title));\n})();`;
-  const pythonReq = `import os, requests\nAPI_KEY = os.environ.get('SCREENPICK_API_KEY')\nresp = requests.get('${baseUrl}/search', params={'q':'emotional drama'}, headers={'Authorization': f'Bearer {API_KEY}'})\nprint(resp.json()['results'][0]['title'])`;
+  const jsFetch = `const res = await fetch('${baseUrl}/search?q=thrilling+heist', {\n  headers: {\n    Authorization: 'Bearer YOUR_API_KEY' // optional; higher limits when provided\n  }\n});\nconst data = await res.json();\nconsole.log(data.movies[0]);`;
+  const nodeAxios = `import axios from 'axios';\n\nconst client = axios.create({\n  baseURL: '${baseUrl}',\n  headers: { Authorization: 'Bearer ' + process.env.SCREENPICK_API_KEY } // optional\n});\n\n(async () => {\n  const { data } = await client.get('/search', { params: { q: 'feel good animated movies' }});\n  console.log(data.movies.map(m => m.title));\n})();`;
+  const pythonReq = `import os, requests\nAPI_KEY = os.environ.get('SCREENPICK_API_KEY')\nresp = requests.get('${baseUrl}/search', params={'q':'emotional drama'}, headers={'Authorization': f'Bearer {API_KEY}'})\nprint(resp.json()['movies'][0]['title'])`;
   const errorHandling = `async function api(path, params) {\n  const url = new URL('${baseUrl}' + path);\n  Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, String(v)));\n  const res = await fetch(url, { headers: { Authorization: 'Bearer ' + process.env.NEXT_PUBLIC_SCREENPICK_KEY } });\n  if (!res.ok) {\n    let msg = res.status + ' error';\n    try {\n      const err = await res.json();\n      msg = err.error?.message || msg;\n    } catch {}\n    if (res.status === 429) {\n      const retry = res.headers.get('Retry-After') || '60';\n      throw new Error('Rate limited. Retry after ' + retry + 's');\n    }\n    throw new Error(msg);\n  }\n  return res.json();\n}`;
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white relative">
@@ -99,7 +99,7 @@ export default function QuickstartContent() {
                 <CodeBlock id="curl-search" onCopy={copy} copied={copied} code={curlSearch} language="bash" />
                 <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700 overflow-x-auto">
                   <pre className="text-xs text-gray-300 whitespace-pre-wrap">{`Example partial response:
-{\n  "query": "classic space adventure",\n  "results": [\n    { "id": 11, "title": "Star Wars: A New Hope", "year": 1977, "imdb_id": "tt0076759" },\n    { "id": 1893, "title": "Star Wars: Attack of the Clones", ... }\n  ],\n  "count": 20\n}`}</pre>
+{\n  "success": true,\n  "query": "classic space adventure",\n  "movies": [\n    {\n      "id": 11,\n      "title": "Star Wars: A New Hope",\n      "release_date": "1977-05-25",\n      "overview": "Luke Skywalker joins forces...",\n      "genre_ids": [12, 28, 878],\n      "vote_average": 8.2,\n      "vote_count": 18000,\n      "popularity": 120.5,\n      "poster_path": "/abc123.jpg",\n      "backdrop_path": "/def456.jpg",\n      "adult": false,\n      "original_language": "en",\n      "original_title": "Star Wars"\n    },\n    { "id": 1893, "title": "Star Wars: Attack of the Clones", ... }\n  ],\n  "total": 10,\n  "requestId": "a2f3b0d2-...",\n  "timestamp": "2025-09-17T12:34:56.789Z",\n  "authMethod": "jwt",\n  "userPlan": "basic"\n}`}</pre>
                 </div>
               </div>
             }

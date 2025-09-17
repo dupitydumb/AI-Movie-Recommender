@@ -37,22 +37,24 @@ export function ApiDocumentation() {
           type: "string",
           required: true,
           description:
-            "Natural language query describing the type of movies you want. Examples: 'romantic comedies from the 90s', 'sci-fi movies with time travel', 'feel-good animated movies for kids'.",
+            "Natural language query describing the type of movies you want. Examples: 'romantic comedies from the 90s', 'sci-fi movies with time travel', 'feel-good animated movies for kids'. Maximum length: 300 characters.",
         },
         {
           name: "Authorization",
           type: "string",
-          required: true,
+          required: false,
           location: "header",
-          description: "Bearer token for API authentication (Authorization: Bearer YOUR_API_KEY) or X-RapidAPI-Key header.",
+          description: "Optional. Provide a JWT Bearer token (Authorization: Bearer <token>) or X-RapidAPI-Key for higher rate limits and access to additional features. Anonymous requests are allowed with reduced limits.",
         },
       ],
       response: {
+        success: true,
+        query: "romantic comedies from the 90s",
         movies: [
           {
             adult: false,
             backdrop_path: "/wj2nLa0vfS0SLu2vJ6ABTRhMrok.jpg",
-            genre_ids: [18],
+            genre_ids: [35, 10749],
             id: 334541,
             original_language: "en",
             original_title: "Manchester by the Sea",
@@ -67,6 +69,11 @@ export function ApiDocumentation() {
             vote_count: 5868,
           },
         ],
+        total: 10,
+        requestId: "5a3c2f1e-1234-4567-89ab-abcdef012345",
+        timestamp: "2025-09-17T12:34:56.789Z",
+        authMethod: "jwt",
+        userPlan: "basic",
       },
       codeExamples: {
         curl: `curl -X GET "https://screenpick.fun/api/search?q=romantic%20comedies%20from%20the%2090s" \\
@@ -1391,6 +1398,7 @@ else:
                     <code>
                       {JSON.stringify(
                         {
+                          success: false,
                           error: {
                             code: "invalid_request",
                             message: "The request was invalid. Please check your parameters.",

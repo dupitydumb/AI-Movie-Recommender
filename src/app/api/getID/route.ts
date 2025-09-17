@@ -1,63 +1,19 @@
 import { NextResponse, NextRequest } from "next/server";
 import dotenv from "dotenv";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { authenticate, getCORSHeaders } from "@/lib/auth-middleware";
 
 dotenv.config();
-let ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(100, "1 m"),
-  analytics: true,
-  prefix: "@upstash/ratelimit",
-});
 
 export async function GET(req: NextRequest) {
-  const baseHeaders: Record<string, string> = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
-  };
+  const baseHeaders: Record<string, string> = getCORSHeaders();
 
   const requestId = crypto.randomUUID();
   const timestamp = new Date().toISOString();
   const { searchParams } = new URL(req.url);
 
-  // Auth extraction (Bearer / header / query)
-  let rawAuth = req.headers.get("Authorization") || "";
-  let token = "";
-  if (rawAuth.toLowerCase().startsWith("bearer ")) token = rawAuth.substring(7).trim();
-  else if (rawAuth) token = rawAuth.trim();
-  token = token || searchParams.get("apiKey") || req.headers.get("X-RapidAPI-Key") || "";
-
-  if (!token) {
-    return errorResponse(401, {
-      code: "invalid_api_key",
-      message: "Missing API key",
-      details: "Supply API key via Authorization Bearer, X-RapidAPI-Key, or apiKey query (testing only).",
-      requestId,
-      timestamp
-    }, baseHeaders);
-  }
-
-  const storedToken = (await Redis.fromEnv().hget(token, "token")) || "";
-  if (token !== storedToken && token !== process.env.API_KEY && token !== process.env.API_KEY_TEST) {
-    return errorResponse(401, {
-      code: "invalid_api_key",
-      message: "API key is invalid",
-      details: "The supplied API key was not recognized.",
-      requestId,
-      timestamp
-    }, baseHeaders);
-  }
-
-  if (token === process.env.API_KEY_TEST) {
-    ratelimit = new Ratelimit({
-      redis: Redis.fromEnv(),
-      limiter: Ratelimit.slidingWindow(15, "60 m"),
-      analytics: true,
-      prefix: "@upstash/ratelimit",
-    });
-  }
+  // Enforce authentication via shared middleware
+  const auth = await authenticate(req, { requireAuth: true, permissions: ['read'] });
+  if (!auth.success) return auth.response;
 
   const title = searchParams.get("title") || "";
   if (!title) {
@@ -80,21 +36,7 @@ export async function GET(req: NextRequest) {
   }
 
   const sanitized = sanitizeInput(title);
-  const rateKey = `getid:${token}`;
-  const rate = await ratelimit.limit(rateKey);
-  const windowLabel = token === process.env.API_KEY_TEST ? "60m" : "1m";
-  if (!rate.success) {
-    return errorResponse(429, {
-      code: "rate_limit_exceeded",
-      message: "Rate limit exceeded",
-      details: "Too many getID requests in the current window.",
-      requestId,
-      timestamp,
-      limit: rate.limit,
-      remaining: rate.remaining,
-      reset: rate.reset
-    }, { ...baseHeaders, ...rateLimitHeaders(rate, windowLabel, true) });
-  }
+  // Rate limiting is handled by the auth middleware
 
   try {
     const results = await lookupIdsFromTMDB(sanitized);
@@ -105,11 +47,9 @@ export async function GET(req: NextRequest) {
         details: `No movies matched title '${sanitized}'.`,
         requestId,
         timestamp
-      }, { ...baseHeaders, ...rateLimitHeaders(rate, windowLabel, false) });
+      }, baseHeaders);
     }
-    return NextResponse.json(results, {
-      headers: { ...baseHeaders, ...rateLimitHeaders(rate, windowLabel, false) }
-    });
+    return NextResponse.json(results, { headers: baseHeaders });
   } catch (e: any) {
     const msg = e?.message || "Unknown error";
     const upstream = /TMDB/i.test(msg);
@@ -119,20 +59,13 @@ export async function GET(req: NextRequest) {
       details: msg,
       requestId,
       timestamp
-    }, { ...baseHeaders, ...rateLimitHeaders(rate, windowLabel, false) });
+    }, baseHeaders);
   }
 }
 
 // Preflight CORS
 export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RapidAPI-Key',
-    },
-  });
+  return new NextResponse(null, { status: 200, headers: getCORSHeaders() });
 }
 
 function sanitizeInput(input: string): string {
@@ -180,14 +113,4 @@ function errorResponse(status: number, error: any, headers: Record<string,string
   return NextResponse.json({ error }, { status, headers });
 }
 
-function rateLimitHeaders(rate: any, windowLabel: string, limited: boolean) {
-  const resetSeconds = Math.max(0, Math.floor((rate.reset * 1000 - Date.now()) / 1000));
-  const h: Record<string,string> = {
-    'X-RateLimit-Limit': String(rate.limit ?? 0),
-    'X-RateLimit-Remaining': String(rate.remaining ?? 0),
-    'X-RateLimit-Reset': String(rate.reset ?? 0),
-    'X-RateLimit-Window': windowLabel,
-  };
-  if (limited) h['Retry-After'] = String(resetSeconds);
-  return h;
-}
+// Per-endpoint rate limit headers removed in favor of centralized middleware

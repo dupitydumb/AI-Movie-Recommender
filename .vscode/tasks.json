@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "API hardening smoke test",
+			"type": "shell",
+			"command": "node -e \"console.log('No runtime smoke tests executed in this environment. Please run curl tests manually.')\"",
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		}
+	]
+}

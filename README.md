@@ -70,8 +70,27 @@ Follow these steps to set up the project locally.
 
 ### API Routes
 
-The project uses Next.js API Routes for the backend. You can find the API routes in the `pages/api` directory.
-The API endpoint is located at `http://localhost:3000/api/search` and it expects a query string parameter `q` with the user's search query. The response will be a JSON object with the following structure:
+Server endpoints live under `src/app/api/*` (Next.js App Router). Most endpoints are protected and require authentication.
+
+Auth options:
+
+- JWT: Send `Authorization: Bearer <accessToken>` header (obtain via `POST /api/auth/login` with your API key)
+- API key (legacy): Send `X-RapidAPI-Key: <your_api_key>` header. For backwards-compat, a raw API key in `Authorization` is also accepted. Query param `apiKey` is supported by the auth layer but should be avoided in production.
+
+Protected endpoints include (not exhaustive):
+- `GET /api/search?q=...`
+- `GET /api/details?id=...`
+- `GET /api/top`
+- `GET /api/trending`
+- `GET /api/genre`
+- `GET /api/getID?title=...`
+
+Public endpoints:
+- `GET /api/ping` (health check)
+- `POST /api/auth/login` (exchange API key for JWT)
+- `POST /api/auth/refresh` (refresh JWT)
+
+Example response shape from `GET /api/search`:
 
 ```json
 {
