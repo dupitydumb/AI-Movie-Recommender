@@ -42,12 +42,26 @@ import ReactGA from "react-ga4";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaggerChildren } from "@/components/animation/stagger-children";
 import { StaggerItem } from "@/components/animation/stagger-children";
+import ProgressOverlay from "@/components/ui/progress-overlay";
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   let [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [progressLabel, setProgressLabel] = useState("Starting...");
+
+  const progressSteps = React.useMemo(
+    () => [
+      "Understanding your request",
+      "Querying AI for titles",
+      "Searching TMDB for matches",
+      "Scoring and sorting results",
+      "Preparing recommendations",
+    ],
+    []
+  );
   // Removed dotenv.config(); not needed client-side (Next.js only exposes NEXT_PUBLIC_*)
   ReactGA.initialize("G-3YKPKP74MD");
 
@@ -63,6 +77,17 @@ export default function Home() {
     if (isLoading) return;
     setMovies([]);
     setIsLoading(true);
+    setProgress(3);
+    setProgressLabel("Understanding your request");
+
+    // Smooth simulated progress while network is in-flight
+    let current = 3;
+    let succeeded = false;
+    const tick = () => {
+      current = Math.min(current + Math.random() * 6 + 2, 88); // cap before finalizing
+      setProgress(current);
+    };
+    const interval = setInterval(tick, 600);
     const promise = fetch(`/api/search?q=${encodeURIComponent(prompt)}` , {
       method: "GET",
       headers: {
@@ -70,6 +95,8 @@ export default function Home() {
       },
     })
       .then(async (response) => {
+        setProgressLabel("Querying AI for titles");
+        setProgress(20);
         const json = await response.json().catch(()=>({ error: 'Invalid server response'}));
         if (!response.ok) {
           // Standardized error fields
@@ -80,25 +107,62 @@ export default function Home() {
             }
             setError(description);
             toaster.create({ title: 'Error', description });
+            clearInterval(interval);
+            setProgress(0);
+            setProgressLabel("Starting...");
             return;
         }
         if (json.error || json.code) {
           const errorMsg = typeof json.error === 'string' ? json.error : (json.error?.message || 'An error occurred');
           setError(errorMsg);
           toaster.create({ title: 'Error', description: errorMsg });
+          clearInterval(interval);
+          setProgress(0);
+          setProgressLabel("Starting...");
           return;
         }
+        setProgressLabel("Searching TMDB for matches");
+        setProgress(60);
         const movieList = json.movies || [];
         if (movieList.length === 0) {
           setError("Sorry, we couldn't get any movie recommendations.");
           toaster.create({ title: 'No Recommendations', description: 'Sorry, we could not get any movie recommendations.' });
+          clearInterval(interval);
+          setProgress(0);
+          setProgressLabel("Starting...");
           return;
         }
+        setProgressLabel("Scoring and sorting results");
+        setProgress(80);
+        // tiny delay to let the user perceive progress
+        await new Promise((r) => setTimeout(r, 250));
         setMovies(movieList);
+        succeeded = true;
+      })
+      .catch((err) => {
+        console.error('Search request failed:', err);
+        setError("Network error while searching. Please try again.");
+        toaster.create({ title: 'Network Error', description: 'Please check your connection and try again.' });
+        clearInterval(interval);
+        setProgress(0);
+        setProgressLabel("Starting...");
       });
     setLoading(true);
     await promise;
-    setIsLoading(false);
+    clearInterval(interval);
+    if (succeeded) {
+      setProgressLabel("Preparing recommendations");
+      setProgress(100);
+      // Allow progress 100% to be visible briefly
+      await new Promise((r) => setTimeout(r, 300));
+      setIsLoading(false);
+      setProgress(0);
+      setProgressLabel("Starting...");
+    } else {
+      setIsLoading(false);
+      setProgress(0);
+      setProgressLabel("Starting...");
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,15 +334,13 @@ export default function Home() {
                     exit={{ opacity: 0 }}
                     className="text-center py-20"
                   >
-                    <div className="inline-flex flex-col items-center gap-6 mb-12">
-                      <div className="relative">
-                        <div className="w-16 h-16 border-4 border-gray-800 rounded-full"></div>
-                        <div className="absolute inset-0 w-16 h-16 border-4 border-t-red-500 rounded-full animate-spin"></div>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-xl font-semibold text-white">Finding perfect movies for you</p>
-                        <p className="text-gray-400">Our AI is analyzing thousands of films...</p>
-                      </div>
+                    <div className="max-w-3xl mx-auto">
+                      <ProgressOverlay
+                        open={true}
+                        percent={progress}
+                        label={progressLabel}
+                        steps={progressSteps}
+                      />
                     </div>
                     
                     {/* Loading skeleton cards */}
