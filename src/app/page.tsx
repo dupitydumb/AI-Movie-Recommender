@@ -88,10 +88,33 @@ export default function Home() {
       setProgress(current);
     };
     const interval = setInterval(tick, 600);
+    // Resolve API key: prefer localStorage override, then NEXT_PUBLIC env var
+    const apiKey =
+      ((typeof window !== 'undefined' && localStorage.getItem('API_KEY')) as string | null) ||
+      (process.env.NEXT_PUBLIC_API_KEY as string | undefined) ||
+      '';
+
+    if (!apiKey) {
+      setError("Missing API key. Set NEXT_PUBLIC_API_KEY or localStorage 'API_KEY'.");
+      toaster.create({
+        title: 'Missing API key',
+        description: "Set NEXT_PUBLIC_API_KEY in env or run localStorage.setItem('API_KEY', '<your_key>') in console.",
+      });
+      clearInterval(interval);
+      setIsLoading(false);
+      setProgress(0);
+      setProgressLabel('Starting...');
+      return;
+    }
+
     const promise = fetch(`/api/search?q=${encodeURIComponent(prompt)}` , {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
+        // Legacy auth: backend accepts X-RapidAPI-Key and raw Authorization (non-Bearer)
+        "X-RapidAPI-Key": apiKey,
+        Authorization: apiKey,
       },
     })
       .then(async (response) => {
