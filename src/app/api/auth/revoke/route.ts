@@ -42,7 +42,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       permissions: [], // No specific permissions required for logout
     });
 
-    if (!authResult.success) {
+    // Use property existence narrowing in case the discriminant union wasn't preserved
+    if ('response' in authResult) {
       return authResult.response;
     }
 
