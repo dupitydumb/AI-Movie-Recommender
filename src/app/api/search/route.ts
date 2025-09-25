@@ -92,112 +92,86 @@ function sanitizeInput(input: string): string {
 }
 
 async function getMovieRecommendations(query: string) {
-  // Import the Google AI SDK
-  const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } = require("@google/generative-ai");
-
-  const apiKey = process.env.GAPI;
+  // Groq-based implementation replacing Gemini
   const tmdbToken = process.env.TMDB;
+  const groqKey = process.env.GROQ_API_KEY;
 
-  if (!apiKey) {
-    throw new Error("Google AI API key not configured");
+  if (!groqKey) {
+    throw new Error("Groq API key not configured");
   }
-
   if (!tmdbToken) {
     throw new Error("TMDB API token not configured");
   }
 
-  // Determine model (allow override via env GEMINI_MODEL). Default to stable flash model.
-  let configuredModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  // Basic sanitization: remove accidental spaces / uppercase that cause 400
-  configuredModel = configuredModel.trim();
-  if (/\s/.test(configuredModel)) {
-    // If user inserted spaces like "Gemini 2.0 Flash-Lite", attempt to normalize or fallback.
-    const lowered = configuredModel.toLowerCase().replace(/\s+/g,'-');
-    // Accept only if it starts with gemini-
-    configuredModel = lowered.startsWith('gemini-') ? lowered : 'Gemini 2.5 Flash-Lite';
-  }
+  const model = (process.env.GROQ_MODEL || 'llama-3.1-8b-instant').trim();
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: configuredModel,
-    safetySettings: [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-    ],
-  });
+  // Lazy import to avoid bundling in edge contexts unnecessarily
+  const { default: Groq } = await import('groq-sdk');
+  const groq = new Groq({ apiKey: groqKey });
+
+  const systemTemplate = `You are a movie recommendation engine.\nBased on the user query "{{query}}", return up to 10-15 movie titles that best match in terms of genre, theme, and mood.\n\nOutput strictly in valid JSON:\n["Movie Title 1", "Movie Title 2", "Movie Title 3", ...]\n\nNo extra text, no explanations.`;
+  const systemContent = systemTemplate.replace('{{query}}', query);
 
   try {
-    // Step 1: Get movie titles from AI
-    const prompt = `Based on the user query "${query}", recommend 10 popular movie titles that best match this request. 
-    Consider genres, themes, moods, and other relevant factors.
-    
-    Return ONLY a JSON array of movie titles as strings, no additional text or explanation.
-    Format: ["Movie Title 1", "Movie Title 2", "Movie Title 3", ...]
-    Maximum 10 titles.`;
+    const completion = await groq.chat.completions.create({
+      model,
+      temperature: 0.7,
+      top_p: 1,
+      max_tokens: 256,
+      stream: false,
+      messages: [
+        { role: 'system', content: systemContent },
+        { role: 'user', content: query }
+      ]
+    });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    
-    // Parse AI response to get movie titles
-    const cleanText = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const movieTitles = JSON.parse(cleanText);
-    
-    if (!Array.isArray(movieTitles)) {
-      throw new Error("AI returned invalid format");
+    const raw = completion.choices?.[0]?.message?.content || '';
+    const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    let movieTitles: string[] = [];
+    try {
+      movieTitles = JSON.parse(clean);
+    } catch {
+      const match = clean.match(/\[[\s\S]*\]/);
+      if (match) {
+        movieTitles = JSON.parse(match[0]);
+      } else {
+        throw new Error('LLM returned non-JSON output');
+      }
     }
-    // Step 2: Search each title on TMDB and collect results
-    const allMovies = [];
-    const searchPromises = movieTitles.slice(0, 10).map(async (title: string) => {
+
+    if (!Array.isArray(movieTitles)) {
+      throw new Error('LLM returned invalid format');
+    }
+
+    const limited = movieTitles.slice(0, 10);
+
+    // TMDB searches (parallel)
+    const searchPromises = limited.map(async (title) => {
       try {
         const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&include_adult=false&language=en-US&page=1`;
         const tmdbResponse = await fetch(searchUrl, {
           headers: {
             'Authorization': `Bearer ${tmdbToken}`,
-            'accept': 'application/json',
-          },
+            'accept': 'application/json'
+          }
         });
-
         if (!tmdbResponse.ok) {
           console.error(`TMDB search failed for "${title}":`, tmdbResponse.status);
           return [];
         }
-
         const tmdbData = await tmdbResponse.json();
-        
-        // Return the top 2 results for each title to get variety
         return tmdbData.results?.slice(0, 2) || [];
-      } catch (error) {
-        console.error(`Error searching TMDB for "${title}":`, error);
+      } catch (e) {
+        console.error(`Error searching TMDB for "${title}":`, e);
         return [];
       }
     });
 
-    // Wait for all TMDB searches to complete
     const movieArrays = await Promise.all(searchPromises);
-    
-    // Flatten and deduplicate results
-    const movieMap = new Map();
-    movieArrays.forEach(movies => {
-      movies.forEach((movie: any) => {
+    const movieMap = new Map<number, any>();
+    movieArrays.forEach(list => {
+      list.forEach((movie: any) => {
         if (movie && movie.id && !movieMap.has(movie.id)) {
           movieMap.set(movie.id, {
             id: movie.id,
@@ -218,33 +192,30 @@ async function getMovieRecommendations(query: string) {
       });
     });
 
-    const finalMovies = Array.from(movieMap.values())
-      .sort((a, b) => b.popularity - a.popularity) // Sort by popularity
-      .slice(0, 10); // Limit to 10 results
-    return finalMovies;
+    return Array.from(movieMap.values())
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 10);
 
   } catch (error) {
-    console.error("Movie recommendation error:", error);
-    
-    // Fallback: Direct TMDB search with the original query
+    console.error('Groq movie recommendation error:', error);
+
+    // Fallback: direct TMDB search
     try {
-      const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;
-      const tmdbResponse = await fetch(searchUrl, {
+      const fallbackUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;
+      const fallbackResp = await fetch(fallbackUrl, {
         headers: {
           'Authorization': `Bearer ${tmdbToken}`,
-          'accept': 'application/json',
-        },
+          'accept': 'application/json'
+        }
       });
-
-      if (tmdbResponse.ok) {
-        const tmdbData = await tmdbResponse.json();
-        return tmdbData.results?.slice(0, 10) || [];
+      if (fallbackResp.ok) {
+        const data = await fallbackResp.json();
+        return data.results?.slice(0, 10) || [];
       }
-    } catch (fallbackError) {
-      console.error("Fallback TMDB search also failed:", fallbackError);
+    } catch (fallbackErr) {
+      console.error('Fallback TMDB search failed:', fallbackErr);
     }
-    
-    throw new Error("Failed to get movie recommendations");
+    throw new Error('Failed to get movie recommendations');
   }
 }
 
