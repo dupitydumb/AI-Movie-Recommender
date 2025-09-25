@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     permissions: ['read', 'search'],
   });
 
-  if (!authResult.success) {
+  if ('response' in authResult) {
     return authResult.response;
   }
 

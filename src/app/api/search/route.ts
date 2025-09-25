@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
     requireAuth: true,
     permissions: ['read', 'search'],
   });
-  if (!authResult.success) return authResult.response;
+  // Narrow the union returned by authenticate() via presence of 'response'
+  if ('response' in authResult) return authResult.response;
   const { user, isLegacyAuth } = authResult.context;
 
   // Get query parameter
@@ -57,8 +58,8 @@ export async function GET(req: NextRequest) {
       total: movies.length,
       requestId,
       timestamp,
-  authMethod: isLegacyAuth ? 'api_key' : 'jwt',
-  userPlan: user.plan || 'free',
+      authMethod: isLegacyAuth ? 'api_key' : 'jwt',
+      userPlan: user.plan || 'free',
     };
 
     return NextResponse.json(response, { 

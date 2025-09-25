@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   // Enforce authentication and rate limiting via shared middleware
   const auth = await authenticate(req, { requireAuth: true, permissions: ['read'] });
-  if (!auth.success) return auth.response;
+  if ('response' in auth) return auth.response;
 
   const timeWindow = searchParams.get("time_window") || "day"; // day or week
   const page = Math.min(Math.max(parseInt(searchParams.get("page") || "1"), 1), 1000);

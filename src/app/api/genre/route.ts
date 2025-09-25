@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   // Enforce authentication via middleware
   const auth = await authenticate(req, { requireAuth: true, permissions: ['read'] });
-  if (!auth.success) return auth.response;
+  if ('response' in auth) return auth.response;
 
   const action = searchParams.get("action") || "discover"; // discover or list
   

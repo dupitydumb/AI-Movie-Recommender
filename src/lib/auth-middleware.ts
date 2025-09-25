@@ -63,8 +63,8 @@ export class AuthMiddleware {
     try {
       // Extract authentication from request
       const authResult = await this.extractAuth(req);
-      
-      if (!authResult.success) {
+      // Narrow the extractAuth union via presence of 'error'
+      if ('error' in authResult) {
         if (!requireAuth) {
           // Allow unauthenticated access if not required
           return {

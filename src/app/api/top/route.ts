@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   // Enforce authentication via middleware (also applies rate limit per key)
   const auth = await authenticate(req, { requireAuth: true, permissions: ['read'] });
-  if (!auth.success) return auth.response;
+  if ('response' in auth) return auth.response;
 
   const { searchParams } = new URL(req.url);
 

@@ -48,7 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       permissions: [], // No specific permissions required for validation
     });
 
-    if (!authResult.success) {
+    if ('response' in authResult) {
       return authResult.response;
     }
 
