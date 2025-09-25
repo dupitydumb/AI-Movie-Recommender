@@ -19,7 +19,8 @@ export function generatePageMetadata({
   noIndex = false,
   canonicalUrl
 }: PageMetadataProps): Metadata {
-  const baseUrl = 'https://Screenpick.fun'
+  // NOTE: use lowercase domain form for canonical consistency
+  const baseUrl = 'https://screenpick.fun'
   const fullUrl = `${baseUrl}${path}`
   const canonical = canonicalUrl || fullUrl
   
@@ -97,7 +98,7 @@ export function generateMovieMetadata({
   rating,
   posterUrl
 }: MovieMetadataProps): Metadata {
-  const baseUrl = 'https://Screenpick.fun'
+  const baseUrl = 'https://screenpick.fun'
   const path = `/movie/${movieId}/watch`
   const canonical = `${baseUrl}${path}`
   
@@ -138,7 +139,7 @@ export function generateMovieMetadata({
 
 // Utility to handle pagination canonical URLs
 export function getPaginationCanonical(basePath: string, page: number): string {
-  const baseUrl = 'https://Screenpick.fun'
+  const baseUrl = 'https://screenpick.fun'
   if (page <= 1) {
     return `${baseUrl}${basePath}`
   }
@@ -147,7 +148,7 @@ export function getPaginationCanonical(basePath: string, page: number): string {
 
 // Utility to handle sorting/filtering canonical URLs
 export function getFilteredCanonical(basePath: string, params: Record<string, string>): string {
-  const baseUrl = 'https://Screenpick.fun'
+  const baseUrl = 'https://screenpick.fun'
   const searchParams = new URLSearchParams()
   
   // Only include important SEO parameters, exclude temporary filters

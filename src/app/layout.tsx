@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://Screenpick.fun'),
+  // Use lowercase hostname for canonical consistency
+  metadataBase: new URL('https://screenpick.fun'),
   title: {
     default: "Movie Recommender: Find the Best Movie Recommendations",
     template: "%s | Screenpick - AI Movie Recommender"
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://Screenpick.fun",
+  url: "https://screenpick.fun",
     siteName: "Screenpick",
     title: "AI Movie Recommendation Generator",
     description:
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://Screenpick.fun",
+  canonical: "https://screenpick.fun",
   },
   verification: {
     google: "aeZs0gNhABslw_UXbjBW8SSu8PALbQhO8cx9oaD92yE",
