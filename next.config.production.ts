@@ -54,9 +54,22 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', '@chakra-ui/react'],
   },
   
-  // Redirects for better SEO
+  // Redirects for better SEO and canonical consistency
   async redirects() {
     return [
+      // Redirect www to non-www for canonical consistency
+      {
+        source: '/(.*)',
+        has: [
+          {
+            type: 'host',
+            value: 'www.screenpick.fun',
+          },
+        ],
+        destination: 'https://screenpick.fun/:path*',
+        permanent: true,
+      },
+      // Redirect /api to docs
       {
         source: '/api',
         destination: '/docs',

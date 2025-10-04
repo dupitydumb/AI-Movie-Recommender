@@ -16,6 +16,23 @@ const nextConfig: NextConfig = {
     domains: ["image.tmdb.org", "ui-avatars.com"],
     dangerouslyAllowSVG: true,
   },
+  // Handle redirects for consistent canonical URLs
+  async redirects() {
+    return [
+      // Redirect www to non-www
+      {
+        source: '/(.*)',
+        has: [
+          {
+            type: 'host',
+            value: 'www.screenpick.fun',
+          },
+        ],
+        destination: 'https://screenpick.fun/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

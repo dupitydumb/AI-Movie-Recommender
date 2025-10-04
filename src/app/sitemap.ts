@@ -46,7 +46,7 @@ async function getTrendingMovies() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://Screenpick.fun'
+  const baseUrl = 'https://screenpick.fun'
   
   // Static pages
   const staticPages = [

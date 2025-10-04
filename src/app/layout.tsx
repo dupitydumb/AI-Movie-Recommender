@@ -19,11 +19,11 @@ export const metadata: Metadata = {
   // Use lowercase hostname for canonical consistency
   metadataBase: new URL('https://screenpick.fun'),
   title: {
-    default: "Movie Recommender: Find the Best Movie Recommendations",
+    default: "AI Movie Recommendation Generator - Find Your Next Favorite Movie",
     template: "%s | Screenpick - AI Movie Recommender"
   },
   description:
-    "Looking for a movie recommender? Our AI-powered movie recommendation engine provides personalized suggestions to help you discover movies you'll love.",
+    "Discover your next favorite movie with our AI-powered recommendation engine. Get personalized movie suggestions based on your mood, preferences, and viewing history. Find where to watch, stream, or rent movies instantly.",
   keywords:
     "AI movie recommendations, movie recommendation engine, find movies, movie suggestions, personalized movie recommendations, discover movies, movie discovery, movie suggestions AI, find your next movie, movie recommendation system, personalized movie suggestions, AI-powered movie recommendations, best movies to watch, movie finder, film recommendations",
   authors: [{ name: "Screenpick Team" }],
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-  url: "https://screenpick.fun",
+    url: "https://screenpick.fun/",
     siteName: "Screenpick",
-    title: "AI Movie Recommendation Generator",
+    title: "AI Movie Recommendation Generator - Find Your Next Favorite Movie",
     description:
       "Discover your next favorite movie with our AI-powered recommendation engine. Get personalized suggestions based on your mood and preferences.",
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Movie Recommendation Generator",
+    title: "AI Movie Recommendation Generator - Find Your Next Favorite Movie",
     description:
       "Discover your next favorite movie with our AI-powered recommendation engine.",
     images: [
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-  canonical: "https://screenpick.fun",
+    canonical: "https://screenpick.fun/",
   },
   verification: {
     google: "aeZs0gNhABslw_UXbjBW8SSu8PALbQhO8cx9oaD92yE",
